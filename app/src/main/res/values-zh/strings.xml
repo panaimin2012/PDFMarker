@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PDF涂鸦</string>
+    <string name="action_settings">设定</string>
+    <string name="action_about">关于</string>
+    <string name="action_file">文件</string>
+    <string name="action_manual">手册</string>
+    <string name="action_stationary">文具</string>
+    <string name="action_mode">模式</string>
+    <string name="action_cut">切边</string>
+    <string name="title_activity_file_selector">请选择一个PDF文件</string>
+    <string name="title_activity_page">PDF涂鸦</string>
+    <string name="title_activity_settings">设定</string>
+    <string name="title_activity_doc">关于</string>
+    <string name="fast_turn">快速翻页</string>
+    <string name="fast_turn_summary">略过翻页动画</string>
+    <string name="keep_ratio">保留原始纵横比</string>
+    <string name="keep_ratio_summary">保留PDF文件的纵横比例</string>
+    <string name="recently">最近使用过的文件</string>
+    <string name="msg_cut">页面已经裁剪</string>
+    <string name="msg_firstpage">已经是第一页</string>
+    <string name="msg_lastpage">已经是最后一页</string>
+	<string name="goto_page">跳转到页数:</string>
+	<string name="max_page">最大</string>
+	<string name="go">跳转</string>
+	<string name="delete_marks">您是否想同时删除此文件相关的所有标注?</string>
+		
+</resources>

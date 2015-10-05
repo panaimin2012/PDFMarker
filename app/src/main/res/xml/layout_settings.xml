@@ -1,0 +1,15 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="FAST_PAGE_TURN"
+        android:summary="@string/fast_turn_summary"
+        android:title="@string/fast_turn" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="KEEP_RATIO"
+        android:summary="@string/keep_ratio_summary"
+        android:title="@string/keep_ratio" />
+
+</PreferenceScreen>
