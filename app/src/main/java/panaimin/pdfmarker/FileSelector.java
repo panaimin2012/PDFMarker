@@ -27,7 +27,7 @@ public class FileSelector extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.layout_file_selector);
+		setContentView(R.layout.a_file_selector);
 		_path = (TextView)findViewById(R.id.cd);
 		_cd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 		_adapter = new FileSysAdapter();
@@ -176,7 +176,7 @@ public class FileSelector extends ListActivity {
 			if(v == null) {
 				LayoutInflater inflater =
 					(LayoutInflater)PDFMarkerApp.instance().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = inflater.inflate(R.layout.layout_file_item, vg, false);
+				v = inflater.inflate(R.layout.r_file, vg, false);
 			}
 			FileSysObject obj = _objects.get(i);
 			ImageView iv = (ImageView)v.findViewById(R.id.indicator);

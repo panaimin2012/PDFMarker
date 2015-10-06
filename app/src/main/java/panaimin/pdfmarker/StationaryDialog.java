@@ -28,7 +28,7 @@ public class StationaryDialog extends Dialog  implements OnTabChangeListener {
 		super(activity);
 		_menuItem = menuItem;
 		setTitle("Stationary");
-		setContentView(R.layout.layout_stationary);
+		setContentView(R.layout.d_stationary);
 		Resources r = PDFMarkerApp.instance().getResources();
 		TabHost th = (TabHost)findViewById(R.id.tabhost1);
 		th.setup();
@@ -150,7 +150,7 @@ public class StationaryDialog extends Dialog  implements OnTabChangeListener {
 			if(v == null) {
 				LayoutInflater inflater =
 					(LayoutInflater)PDFMarkerApp.instance().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = inflater.inflate(R.layout.layout_stationary_item, parent, false);
+				v = inflater.inflate(R.layout.r_stationary, parent, false);
 			}
 			TextView textView = (TextView)v.findViewById(R.id.fileName);
 			ImageView imageView = (ImageView)v.findViewById(R.id.indicator);

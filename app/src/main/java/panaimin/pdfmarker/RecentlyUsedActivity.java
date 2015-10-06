@@ -25,11 +25,11 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.layout_main);
+		setContentView(R.layout.a_main);
 		Cursor cursor = DB.instance().getFiles();
 		String[] cols = new String[] { DB.FILES._FILE, DB.FILES._PATH };
 		int[] ids = new int[] { R.id.fileName, R.id.directory };
-		_adapter = new SimpleCursorAdapter(this, R.layout.layout_file_item, cursor, cols, ids, 0);
+		_adapter = new SimpleCursorAdapter(this, R.layout.r_file, cursor, cols, ids, 0);
 		setListAdapter(_adapter);
 		getListView().setOnItemLongClickListener(this);
 		_stopped = false;

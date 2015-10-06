@@ -14,7 +14,7 @@ public class DocActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.layout_doc);
+		setContentView(R.layout.a_doc);
 		WebView webView = (WebView)findViewById(R.id.webView1);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {

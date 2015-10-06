@@ -11,7 +11,7 @@ public class GotoDialog extends Dialog implements OnClickListener {
 	public GotoDialog(PageActivity activity) {
 		super(activity);
 		_activity = activity;
-		setContentView(R.layout.layout_goto);
+		setContentView(R.layout.d_goto);
 		_pageNumber = (TextView)findViewById(R.id.pageNumber);
 		Button btn = (Button)findViewById(R.id.button1);
 		btn.setOnClickListener(this);

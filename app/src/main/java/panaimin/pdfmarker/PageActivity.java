@@ -21,7 +21,7 @@ public class PageActivity extends Activity implements OnTouchListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.layout_page);
+		setContentView(R.layout.a_page);
 		_forePage = (PageView)findViewById(R.id.container);
 		// try to show the passed in page
 		Bundle extras = getIntent().getExtras();
