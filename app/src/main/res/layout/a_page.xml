@@ -1,8 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-<panaimin.pdfmarker.PageView xmlns:android="http://schemas.android.com/apk/res/android"
+<panaimin.pdfmarker.SVGView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
@@ -10,4 +10,4 @@
     tools:context="panaimin.pdfmarker.PageActivity"
     tools:ignore="MergeRootFrame" />
 
-</RelativeLayout>
+</FrameLayout>
