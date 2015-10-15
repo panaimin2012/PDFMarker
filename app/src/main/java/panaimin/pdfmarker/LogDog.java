@@ -91,7 +91,7 @@ public class LogDog implements UncaughtExceptionHandler {
 	private static LogDog					_instance = new LogDog();
 	private static final String 			PATH =
 			Environment.getExternalStorageDirectory().getPath() + "/log";
-	private static final String				FILE_NAME = "AdKiller.log";
+	private static final String				FILE_NAME = "PDFMarker.log";
 	private Context							_context;
 	private Thread.UncaughtExceptionHandler	_defaultHandler;
 	private PrintWriter						_writer = null;
