@@ -68,7 +68,7 @@ public class SVGView extends View {
 
 	void cutEdge() {
 		if(_dynamicMatrix != null) {
-			PDFMaster.instance().cutEdge(_displayMatrix);
+			PDFMaster.instance().cutEdge(_dynamicMatrix);
 			_scale = 1.0f;
 			setDynamicMatrix(null);
 			refresh();
