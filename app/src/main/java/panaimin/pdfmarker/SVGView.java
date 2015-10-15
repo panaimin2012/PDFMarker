@@ -2,6 +2,7 @@ package panaimin.pdfmarker;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,6 +13,8 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 public class SVGView extends View {
+
+	static final String TAG = "PDFMarker.SVGView";
 
 	private int					_width = 0;
 	private int					_height = 0;
@@ -54,7 +57,11 @@ public class SVGView extends View {
 		_displayMatrix = new Matrix(_fixedMatrix);
 		if(_dynamicMatrix != null)
 			_displayMatrix.postConcat(_dynamicMatrix);
-		BitmapDrawable bg = new BitmapDrawable(getResources(), _pdf);
+		Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+		Bitmap bmp = Bitmap.createBitmap(_width, _height, conf); // this creates a MUTABLE bitmap
+		Canvas canvas = new Canvas(bmp);
+		canvas.drawBitmap(_pdf, _displayMatrix, null);
+		BitmapDrawable bg = new BitmapDrawable(getResources(), bmp);
 		setBackground(bg);
 		invalidate();
 	}
@@ -72,12 +79,12 @@ public class SVGView extends View {
 	@Override
 	public void onDraw(Canvas canvas) {
 		// draw svg
-		if(_displayMatrix != null)
-			canvas.concat(_displayMatrix);
-		//canvas.drawBitmap(_pdf, 0, 0, null);
+		if(_dynamicMatrix != null)
+			canvas.concat(_dynamicMatrix);
 		canvas.drawBitmap(_svgRecorder.getBitmap(), 0, 0, null);
-		if(_currentPath != null)
+		if(_currentPath != null) {
 			canvas.drawPath(_currentPath, Stationary.getCurrentPaint());
+		}
 		if(_dynamicMatrix != null)
 			canvas.restore();
 	}
