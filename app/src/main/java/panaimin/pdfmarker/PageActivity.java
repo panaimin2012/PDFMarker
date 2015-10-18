@@ -9,24 +9,28 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.FrameLayout;
 
-public class PageActivity extends Activity implements OnTouchListener {
+public class PageActivity extends Activity {
 	
 	public static String TAG = "PAGE";
 	
-	boolean	_markMode = false;
-	
+	boolean				_markMode = false;
+	StationaryDialog	_stationaryDialog = null;
+	int					_fileId;
+	int					_pageId;
+	PageTurner			_pageTurner;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.a_page);
-		_svgView = (SVGView)findViewById(R.id.container);
 		// try to show the passed in page
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			_fileId = extras.getInt("FILE_ID");
 		}
-		_svgView.setOnTouchListener(this);
+		_pageTurner = (PageTurner)findViewById(R.id.turner);
 		// reset the stationary when opening a page
 		Stationary.setCurrentStationary(Stationary.PENCIL * Stationary.M + Stationary.P_HB);
 	}
@@ -77,7 +81,7 @@ public class PageActivity extends Activity implements OnTouchListener {
 			return true;
 		}
 		else if(id == R.id.action_cut) {
-			_svgView.cutEdge();
+			_pageTurner._current.cutEdge();
 			return true;
 		}
 		else if(id == R.id.action_about) {
@@ -95,26 +99,4 @@ public class PageActivity extends Activity implements OnTouchListener {
 		return super.onOptionsItemSelected(item);
 	}
 
-	public int getFileId() { return _fileId; }
-	public int getPageId() { return _pageId; }
-
-	public void turnToPage(int pageNumber) {
-		_pageId = pageNumber;
-		_svgView.refresh();
-		DB.instance().setLastPage(_fileId, _pageId);
-		PDFMarkerApp.instance().showToast("Page " + (_pageId + 1));
-	}
-
-	// private
-	
-	private int						_fileId;
-	private int						_pageId;
-	private SVGView					_svgView;
-	private StationaryDialog		_stationaryDialog = null;
-	
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		return false;
-	}
-	
 }

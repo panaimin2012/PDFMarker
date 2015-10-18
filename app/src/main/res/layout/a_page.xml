@@ -2,12 +2,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-<panaimin.pdfmarker.SVGView xmlns:android="http://schemas.android.com/apk/res/android"
+<panaimin.pdfmarker.PageTurner xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/turner"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="panaimin.pdfmarker.PageActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:context="panaimin.pdfmarker.PageTurner"
+    tools:ignore="MergeRootFrame"
+    android:visibility="visible"/>
 
 </FrameLayout>

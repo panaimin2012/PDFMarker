@@ -2,7 +2,6 @@ package panaimin.pdfmarker;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,13 +21,29 @@ public class SVGView extends View {
 	private Bitmap				_pdf;
 	private SVGRecorder.SVGPath _currentPath;
 	private PageActivity		_activity;
+	private int					_fileId;
+	private int					_pageId;
 	private GotoDialog			_gotoDialog = null;
 
 	public SVGView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		_activity = (PageActivity)context;
+		initView();
+	}
+
+	public SVGView(Context context) {
+		super(context);
+		initView();
+	}
+
+	void initView() {
+		_activity = (PageActivity)getContext();
 		_scaleListener = new ScaleListener();
 		_scaleDetector = new ScaleGestureDetector(PDFMarkerApp.instance(), _scaleListener);
+	}
+
+	void setPage(int fileId, int pageId) {
+		_fileId = fileId;
+		_pageId = pageId;
 	}
 
 	@Override
@@ -40,11 +55,8 @@ public class SVGView extends View {
 	}
 
 	public void refresh() {
-		PageActivity activity = (PageActivity)getContext();
-		int fileId = activity.getFileId();
-		int pageId = activity.getPageId();
-		_svgRecorder = SVGRecorder.getInstance(fileId, pageId);
-		_pdf = PDFMaster.instance().gotoPage(pageId);
+		_svgRecorder = SVGRecorder.getInstance(_fileId, _pageId);
+		_pdf = PDFMaster.instance().gotoPage(_pageId);
 		_fixedMatrix = PDFMaster.instance().getFixedMatrix(_width, _height);
 		setDynamicMatrix(_dynamicMatrix);
 	}
@@ -54,7 +66,7 @@ public class SVGView extends View {
 		_dynamicMatrixValues = null;
 		if(_fixedMatrix == null)
 			return;
-		_displayMatrix = new Matrix(_fixedMatrix);
+		Matrix _displayMatrix = new Matrix(_fixedMatrix);
 		if(_dynamicMatrix != null)
 			_displayMatrix.postConcat(_dynamicMatrix);
 		Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
@@ -74,6 +86,11 @@ public class SVGView extends View {
 			refresh();
 			PDFMarkerApp.instance().showToast(getResources().getString(R.string.msg_cut));
 		}
+	}
+
+	@Override
+	public void draw(Canvas canvas) {
+		super.draw(canvas);
 	}
 
 	@Override
@@ -111,6 +128,7 @@ public class SVGView extends View {
 			_scaleDetector.onTouchEvent(event);
 			// scroll happens only when zoomed in (scale > 1)
 			if(_scale > 1.0f) {
+				_showGoto = false;
 				// don't scroll, else image jumps
 				if(!_scaleListener._scaling) {
 					float x = event.getX();
@@ -151,12 +169,14 @@ public class SVGView extends View {
 						break;
 					}
 				}
-			}
-			else if (action == MotionEvent.ACTION_UP){
+			} else if (action == MotionEvent.ACTION_DOWN) {
+				_showGoto = true;
+			} else if (action == MotionEvent.ACTION_UP && _showGoto) {
 				if (_gotoDialog == null)
 					_gotoDialog = new GotoDialog(_activity);
-				_gotoDialog.setPage(_activity.getPageId() + 1);
+				_gotoDialog.setPage(_activity._pageId + 1);
 				_gotoDialog.show();
+				_showGoto = false;
 			}
 		}
 		invalidate();
@@ -171,7 +191,6 @@ public class SVGView extends View {
 	private float					_scale = 1.0f;
 	private Matrix					_fixedMatrix = null;
 	private Matrix					_dynamicMatrix = null;
-	private Matrix					_displayMatrix = null; // product of fixedMatrix * dynamicMatrix
 	private float[]					_dynamicMatrixValues;
 	private float[]					_testPoints = null; // test corner points so don't move out screen
 	private float[]					_testResults = new float[] {0f, 0f, 0f, 0f};
@@ -180,6 +199,7 @@ public class SVGView extends View {
 	private float					_focusX;
 	private float					_focusY;
 	private boolean					_moving = false;
+	private boolean					_showGoto = false;
 
 	private float getUnscaledX(float x) {
 		if(_dynamicMatrix != null) {
