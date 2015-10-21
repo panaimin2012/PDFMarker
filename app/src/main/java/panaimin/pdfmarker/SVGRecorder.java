@@ -2,23 +2,18 @@ package panaimin.pdfmarker;
 
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
 
-import android.content.res.Resources.NotFoundException;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.util.Xml;
 
@@ -98,13 +93,8 @@ public class SVGRecorder {
 		return _instances[PAGE_CURRENT];
 	}
 	
-	static public Bitmap getCachedBitmap(int offset) {
-		return _instances[offset].getBitmap();
-	}
-	
 	static private void discardPage(int offset) {
 		if(_instances[offset] != null) {
-			_instances[offset]._bitmap.recycle();
 			_instances[offset] = null;
 		}
 	}
@@ -122,18 +112,12 @@ public class SVGRecorder {
 	private SVGRecorder(int fileId, int pageId) {
 		_fileId = fileId;
 		_pageId = pageId;
-		_bitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
-		_canvas = new Canvas(_bitmap);
+		_paths = new ArrayList<>();
 		load();
-	}
-	
-	public Bitmap getBitmap() {
-		return _bitmap;
 	}
 	
 	private void load() {
 		_paths.clear();
-		_canvas.drawARGB(0, 0, 0, 0);
 		String svgFile = PDFMarkerApp.instance().getFilesDir().getPath() + "/" + _fileId + "." + _pageId + ".svg";
 		XmlPullParserFactory factory;
 		try {
@@ -149,6 +133,8 @@ public class SVGRecorder {
 					if(xpp.getName().equals(TAG_SIZE)) {
 						int width = Integer.valueOf(xpp.getAttributeValue(null, ATTRIBUTE_X));
 						int height = Integer.valueOf(xpp.getAttributeValue(null, ATTRIBUTE_Y));
+						if (_width != width || _height != height)
+							LogDog.e(TAG, "SVG size mismatch");
 					}
 					else if(xpp.getName().equals(TAG_PATH)) {
 						int pen = Integer.valueOf(xpp.getAttributeValue(null, ATTRIBUTE_PEN));
@@ -158,19 +144,17 @@ public class SVGRecorder {
 					else if(xpp.getName().equals(TAG_POINT)) {
 						float x = Float.valueOf(xpp.getAttributeValue(null, ATTRIBUTE_X));
 						float y = Float.valueOf(xpp.getAttributeValue(null, ATTRIBUTE_Y));
-						path.addPoint(x, y);
+						if (path != null)
+							path.addPoint(x, y);
 					}
 					break;
 				case XmlPullParser.END_TAG :
-					if(xpp.getName().equals(TAG_PATH))
-						_canvas.drawPath(path, Stationary.getPaint(path.getPen()));
 					break;
 				}
 				eventType = xpp.next();
 			}
-		} catch (NotFoundException e) {
-		} catch (XmlPullParserException e) {
-		} catch (IOException e) {
+		} catch (Exception e) {
+			LogDog.e(TAG, "Error loading svg:" + e.getMessage());
 		}
 	}
 	
@@ -189,15 +173,11 @@ public class SVGRecorder {
 				}
 			}
 			if(modified) {
-				_canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-				for(SVGPath path: _paths)
-					_canvas.drawPath(path, Stationary.getPaint(path.getPen()));
 				_modified = true;
 			}
 		}
 		else {
 			_paths.add(newPath);
-			_canvas.drawPath(newPath, Stationary.getPaint(newPath.getPen()));
 			_modified = true;
 		}
 	}
@@ -207,25 +187,29 @@ public class SVGRecorder {
 			_modified = false;
 			String svgFile = PDFMarkerApp.instance().getFilesDir().getPath() + "/" + _fileId + "." + _pageId + ".svg";
 			XmlSerializer xml = Xml.newSerializer();
-			OutputStream out = null;
+			OutputStream out;
 			try {
 				out = new BufferedOutputStream(new FileOutputStream(svgFile));
 				xml.setOutput(out, ENCODING);
 				xml.startDocument(ENCODING, true);
 				xml.startTag(null, TAG_SIZE);
-				xml.attribute(null, ATTRIBUTE_X, String.valueOf(_bitmap.getWidth()));
-				xml.attribute(null, ATTRIBUTE_Y, String.valueOf(_bitmap.getHeight()));
+				xml.attribute(null, ATTRIBUTE_X, String.valueOf(_width));
+				xml.attribute(null, ATTRIBUTE_Y, String.valueOf(_height));
 				xml.endTag(null, TAG_SIZE);
 				for(SVGPath path: _paths)
 					path.output(xml);
 				xml.endDocument();
 				xml.flush();
 				out.close();
-			} catch (IllegalArgumentException e) {
-			} catch (FileNotFoundException e) {
-			} catch (IllegalStateException e) {
-			} catch (IOException e) {
+			} catch (Exception e) {
+				LogDog.e(TAG, "Error saving svg:" + e.getMessage());
 			}
+		}
+	}
+
+	void draw(Canvas canvas) {
+		for (SVGPath path : _paths) {
+			canvas.drawPath(path, Stationary.getPaint(path.getPen()));
 		}
 	}
 
@@ -234,9 +218,7 @@ public class SVGRecorder {
 	private boolean					_modified = false;
 	private int						_fileId = -100;
 	private int						_pageId = -100;
-	private Bitmap					_bitmap;
-	private Canvas					_canvas;
-	private ArrayList<SVGPath>		_paths = new ArrayList<SVGPath>();
+	private ArrayList<SVGPath>		_paths;
 
 	public class SVGPath extends Path {
 
@@ -337,7 +319,7 @@ public class SVGRecorder {
 		
 		static private final float	TOUCH_TOLERANCE = 4; // don't record small moves to avoid point o
 		
-		private ArrayList<PointF>	_points = new ArrayList<PointF>();
+		private ArrayList<PointF>	_points = new ArrayList<>();
 		private final int			_pen;
 		private float				_px;
 		private float				_py;

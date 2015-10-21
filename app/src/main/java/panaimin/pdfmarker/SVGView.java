@@ -22,7 +22,7 @@ public class SVGView extends View {
 	private SVGRecorder.SVGPath _currentPath;
 	private PageActivity		_activity;
 	private int					_fileId;
-	private int					_pageId;
+	private int					_pageId = -1;
 	private GotoDialog			_gotoDialog = null;
 
 	public SVGView(Context context, AttributeSet attrs) {
@@ -44,6 +44,8 @@ public class SVGView extends View {
 	void setPage(int fileId, int pageId) {
 		_fileId = fileId;
 		_pageId = pageId;
+		if (_width > 0)
+			refresh();
 	}
 
 	@Override
@@ -51,12 +53,18 @@ public class SVGView extends View {
 		_width = w;
 		_height = h;
 		SVGRecorder.setSize(_width, _height);
-		refresh();
+		if (_pageId >= 0)
+			refresh();
 	}
 
 	public void refresh() {
 		_svgRecorder = SVGRecorder.getInstance(_fileId, _pageId);
-		_pdf = PDFMaster.instance().gotoPage(_pageId);
+		if (this == _activity._pageTurner._current)
+			_pdf = PDFMaster.instance().gotoPage(_pageId);
+		else if (this == _activity._pageTurner._previous)
+			_pdf = PDFMaster.instance().getCachedBitmap(PDFMaster.PAGE_PREVIOUS);
+		else if (this == _activity._pageTurner._next)
+			_pdf = PDFMaster.instance().getCachedBitmap(PDFMaster.PAGE_NEXT);
 		_fixedMatrix = PDFMaster.instance().getFixedMatrix(_width, _height);
 		setDynamicMatrix(_dynamicMatrix);
 	}
@@ -98,7 +106,7 @@ public class SVGView extends View {
 		// draw svg
 		if(_dynamicMatrix != null)
 			canvas.concat(_dynamicMatrix);
-		canvas.drawBitmap(_svgRecorder.getBitmap(), 0, 0, null);
+		_svgRecorder.draw(canvas);
 		if(_currentPath != null) {
 			canvas.drawPath(_currentPath, Stationary.getCurrentPaint());
 		}
@@ -128,7 +136,6 @@ public class SVGView extends View {
 			_scaleDetector.onTouchEvent(event);
 			// scroll happens only when zoomed in (scale > 1)
 			if(_scale > 1.0f) {
-				_showGoto = false;
 				// don't scroll, else image jumps
 				if(!_scaleListener._scaling) {
 					float x = event.getX();
@@ -169,14 +176,6 @@ public class SVGView extends View {
 						break;
 					}
 				}
-			} else if (action == MotionEvent.ACTION_DOWN) {
-				_showGoto = true;
-			} else if (action == MotionEvent.ACTION_UP && _showGoto) {
-				if (_gotoDialog == null)
-					_gotoDialog = new GotoDialog(_activity);
-				_gotoDialog.setPage(_activity._pageId + 1);
-				_gotoDialog.show();
-				_showGoto = false;
 			}
 		}
 		invalidate();
@@ -199,7 +198,8 @@ public class SVGView extends View {
 	private float					_focusX;
 	private float					_focusY;
 	private boolean					_moving = false;
-	private boolean					_showGoto = false;
+
+	float getScale() { return _scale; }
 
 	private float getUnscaledX(float x) {
 		if(_dynamicMatrix != null) {
