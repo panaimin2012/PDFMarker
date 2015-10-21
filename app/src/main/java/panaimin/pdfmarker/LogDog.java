@@ -24,10 +24,10 @@ public class LogDog implements UncaughtExceptionHandler {
 
 	private static HashSet<String>		_tags = new HashSet<>();
 	private static boolean				_adb = true;
-	private static boolean				_file = false;
+	private static boolean				_file = true;
 
 	static {
-		_tags.add(PageActivity.TAG);
+//		_tags.add(PageActivity.TAG);
 	}
 
 	public static LogDog instance() {
