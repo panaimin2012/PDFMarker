@@ -11,6 +11,7 @@ public class PDFMarkerApp extends Application {
 	public void onCreate() {
 		super.onCreate();
 		_instance = this;
+		Utility.instance(_instance);
 		LogDog.instance().init(this);
 	}
 	
