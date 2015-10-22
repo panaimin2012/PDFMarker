@@ -23,7 +23,6 @@ public class SVGView extends View {
 	private PageActivity		_activity;
 	private int					_fileId;
 	private int					_pageId = -1;
-	private GotoDialog			_gotoDialog = null;
 
 	public SVGView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -58,6 +57,7 @@ public class SVGView extends View {
 	}
 
 	public void refresh() {
+		LogDog.i(TAG, "refresh page " + _pageId);
 		_svgRecorder = SVGRecorder.getInstance(_fileId, _pageId);
 		if (this == _activity._pageTurner._current)
 			_pdf = PDFMaster.instance().gotoPage(_pageId);
@@ -83,7 +83,7 @@ public class SVGView extends View {
 		canvas.drawBitmap(_pdf, _displayMatrix, null);
 		BitmapDrawable bg = new BitmapDrawable(getResources(), bmp);
 		setBackground(bg);
-		invalidate();
+		postInvalidate();
 	}
 
 	void cutEdge() {
@@ -97,7 +97,7 @@ public class SVGView extends View {
 	}
 
 	@Override
-	public void draw(Canvas canvas) {
+	public void draw(@NonNull Canvas canvas) {
 		super.draw(canvas);
 	}
 
@@ -106,13 +106,16 @@ public class SVGView extends View {
 		// draw svg
 		if(_dynamicMatrix != null)
 			canvas.concat(_dynamicMatrix);
-		_svgRecorder.draw(canvas);
+		if (_svgRecorder != null)
+			_svgRecorder.draw(canvas);
 		if(_currentPath != null) {
 			canvas.drawPath(_currentPath, Stationary.getCurrentPaint());
 		}
 		if(_dynamicMatrix != null)
 			canvas.restore();
 	}
+
+	private boolean _showGoto = false;
 
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
@@ -176,6 +179,18 @@ public class SVGView extends View {
 						break;
 					}
 				}
+				_showGoto = false;
+			}
+			else if (action == MotionEvent.ACTION_DOWN) {
+				_showGoto = true;
+			}
+			else if (action == MotionEvent.ACTION_UP) {
+				if (_showGoto) {
+					GotoDialog dlg = new GotoDialog(_activity);
+					dlg.setPage(_activity._pageId + 1);
+					dlg.show();
+				}
+				_showGoto = false;
 			}
 		}
 		invalidate();
@@ -198,8 +213,6 @@ public class SVGView extends View {
 	private float					_focusX;
 	private float					_focusY;
 	private boolean					_moving = false;
-
-	float getScale() { return _scale; }
 
 	private float getUnscaledX(float x) {
 		if(_dynamicMatrix != null) {
