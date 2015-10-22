@@ -26,6 +26,7 @@ public class PageTurner extends FrameLayout {
 	private static final int[]	LEFT_SHADOW_COLORS = new int[] { 0, LEFT_SHADOW_DARK };
 	private static final int[]	RIGHT_SHADOW_COLORS = new int[] { 0xff000000, 0};
 	private static final int[]	BACK1_COLORS = new int[] { 0xffd0d0d0, 0xff404040 };
+	private static final int	SCROLL_TIME = 2000;
 
 	// I try to simulate pulling the page edge
 	// but unfortunately solving this equation is an advanced topic
@@ -65,23 +66,22 @@ public class PageTurner extends FrameLayout {
 
 	void initView() {
 		_activity = (PageActivity)getContext();
-		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		int fileId = _activity._fileId;
 		_pageId = _activity._pageId;
 		// current
 		_current = new SVGView(_activity);
-		addView(_current, params);
+		addView(_current);
 		_current.setPage(fileId, _pageId);
 		// previous
 		_previous = new SVGView(_activity);
 		_previous.setVisibility(View.INVISIBLE);
-		addView(_previous, params);
+		addView(_previous);
 		if (_pageId > 0)
 			_previous.setPage(fileId, _pageId - 1);
 		// next
 		_next = new SVGView(_activity);
 		_next.setVisibility(View.INVISIBLE);
-		addView(_next, params);
+		addView(_next);
 		if (_pageId < PDFMaster.instance().countPages() - 1)
 			_next.setPage(fileId, _pageId + 1);
 		// init drawables
@@ -107,6 +107,7 @@ public class PageTurner extends FrameLayout {
 		_leftMost2Orient_minus = new int[_width];
 		_leftMost2Angle = new float[_width];
 		_leftMost2Angle_minus = new float[_width];
+		LogDog.i(TAG, "onSizeChanged _leftMost2Angle_minus size=" + _leftMost2Angle_minus.length);
 		int lastLeftMost = _width - 1;
 		_leftMost2Orient[lastLeftMost] = _width - 1;
 		_leftMost2Angle[lastLeftMost] = 0;
@@ -115,12 +116,12 @@ public class PageTurner extends FrameLayout {
 			float angle = (float)s / _radius;
 			float degree = (float)(angle * 180 / Math.PI);
 			int leftMost =
-					degree > 360 ? (int)(Math.PI * 2 * _radius  + orient * 2 - _radius * 2 - _width) :
-							degree > 270 ? (int)(orient - _radius * 2 - _radius * Math.sin(angle)) :
-									(int) (orient + _radius * Math.sin(angle));
-			while(lastLeftMost > leftMost) {
+				degree > 360 ? (int)(Math.PI * 2 * _radius  + orient * 2 - _radius * 2 - _width) :
+					degree > 270 ? (int)(orient - _radius * 2 - _radius * Math.sin(angle)) :
+						(int) (orient + _radius * Math.sin(angle));
+			while (lastLeftMost > leftMost) {
 				lastLeftMost--;
-				if(lastLeftMost < 0) {
+				if (lastLeftMost < 0) {
 					_leftMost2Orient_minus[-lastLeftMost] = orient;
 					_leftMost2Angle_minus[-lastLeftMost] = angle;
 				} else {
@@ -144,6 +145,7 @@ public class PageTurner extends FrameLayout {
 	}
 
 	private void setRightMost(float rightMost) {
+		LogDog.i(TAG, "setRightMost " + rightMost);
 		_rightMost = rightMost;
 		if(_rightMost < _radius) {
 			_orient = 0;
@@ -163,10 +165,33 @@ public class PageTurner extends FrameLayout {
 					degree > 270 ? (int)(_orient - _radius * 2 - _radius * Math.sin(angle)) :
 						(int) (_orient + _radius * Math.sin(angle));
 		}
-		calculatePaths();
+		LogDog.i(TAG, "setRightMost leftMost=" + _leftMost);
+		postInvalidate();
 	}
 
-	private boolean _showGoto = false;
+	@Override
+	public boolean onTouchEvent(@NonNull MotionEvent ev) {
+		float x = ev.getX();
+		LogDog.i(TAG, "onTouchEvent " + ev.getActionMasked() + " " + x);
+		switch (ev.getActionMasked()) {
+			case MotionEvent.ACTION_MOVE :
+				if (_turning == TURNING_PREV_MANUAL)
+					setRightMost(x);
+				else if (_turning == TURNING_NEXT_MANUAL)
+					setLeftMost(x);
+				break;
+			case MotionEvent.ACTION_UP :
+				if (_turning == TURNING_PREV_MANUAL) {
+					_turning = TURNING_PREV_AUTO;
+					_scroller.startScroll((int) x, 0, _width - (int) x, 0, SCROLL_TIME);
+				}
+				else if (_turning == TURNING_NEXT_MANUAL) {
+					_turning = TURNING_NEXT_AUTO;
+					_scroller.startScroll((int) x, 0, (int) -x, 0, SCROLL_TIME);
+				}
+		}
+		return true;
+	}
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -174,68 +199,35 @@ public class PageTurner extends FrameLayout {
 			return false;
 		}
 		float x = ev.getX();
+		LogDog.i(TAG, "onInterceptTouchEvent " + ev.getActionMasked() + " " + x);
 		switch (ev.getActionMasked()) {
-		case MotionEvent.ACTION_DOWN :
-			if (x < EDGE_WIDTH) {
-				_turning = TURNING_PREV_MANUAL;
-				initTurn();
-				setRightMost(x);
-			}
-			else if (x > _width - EDGE_WIDTH) {
-				_turning = TURNING_NEXT_MANUAL;
-				initTurn();
-				setLeftMost(x);
-			}
-			else if (_current.getScale() == 1.0f)
-				_showGoto = true;
-			break;
-		case MotionEvent.ACTION_MOVE :
-			if (_turning == TURNING_PREV_MANUAL) {
-				setRightMost(x);
-				return true;
-			}
-			else if (_turning == TURNING_NEXT_MANUAL) {
-				setLeftMost(x);
-				return true;
-			}
-			break;
-		case MotionEvent.ACTION_UP :
-			if (_turning == TURNING_PREV_MANUAL) {
-				_turning = TURNING_PREV_AUTO;
-				_scroller.startScroll((int)x, 0, _width, 0);
-				return true;
-			}
-			else if (_turning == TURNING_NEXT_MANUAL) {
-				_turning = TURNING_NEXT_AUTO;
-				_scroller.startScroll((int)x, 0, 0, 0);
-				return true;
-			}
-			else if (_showGoto && _current.getScale() == 1.0f) {
-				GotoDialog dlg = new GotoDialog(_activity);
-				dlg.setPage(_activity._pageId + 1);
-				dlg.show();
-				return true;
-			}
-			_showGoto = false;
+			case MotionEvent.ACTION_DOWN:
+				if (x < EDGE_WIDTH) {
+					_turning = TURNING_PREV_MANUAL;
+					_previous.setVisibility(VISIBLE);
+					setRightMost(x);
+					return true;
+				} else if (x > _width - EDGE_WIDTH) {
+					_turning = TURNING_NEXT_MANUAL;
+					_next.setVisibility(VISIBLE);
+					setLeftMost(x);
+					return true;
+				}
+				break;
 		}
 		return false;
 	}
 
-	void initTurn() {
-		if (_turning == TURNING_NEXT_MANUAL) {
-			_next.setVisibility(VISIBLE);
-		}
-		else if (_turning == TURNING_PREV_MANUAL) {
-			_previous.setVisibility(VISIBLE);
-		}
-	}
-
 	@Override
 	public void computeScroll() {
+		LogDog.i(TAG, "computeScroll");
 		super.computeScroll();
+		if (_turning != TURNING_NEXT_AUTO && _turning != TURNING_PREV_AUTO)
+			return;
 		if (_scroller.computeScrollOffset()) {
 			// scrolling
 			float x = _scroller.getCurrX();
+			LogDog.i(TAG, "computeScroll x=" + x);
 			if (_turning == TURNING_PREV_AUTO) {
 				setRightMost(x);
 			}
@@ -246,6 +238,25 @@ public class PageTurner extends FrameLayout {
 		}
 		else {
 			// scroll finished
+			_current.setVisibility(INVISIBLE);
+			if (isTurningNext()) {
+				SVGView v = _previous;
+				_previous = _current;
+				_current = _next;
+				_next = v;
+				_pageId ++;
+				if (_pageId < PDFMaster.instance().countPages() - 1)
+					_next.setPage(_activity._fileId, _pageId + 1);
+			} else {
+				SVGView v = _next;
+				_next = _current;
+				_current = _previous;
+				_previous = v;
+				_pageId --;
+				if (_pageId > 0)
+					_next.setPage(_activity._fileId, _pageId - 1);
+			}
+			_turning = TURNING_NONE;
 		}
 	}
 
@@ -262,7 +273,6 @@ public class PageTurner extends FrameLayout {
 		PDFMarkerApp.instance().showToast("Page " + (_pageId + 1));
 	}
 
-	private RectF _dirtyRect = new RectF();
 	private RectF _rect1 = new RectF();
 	private RectF _rect2 = new RectF();
 	private float _lastLeftMost;
@@ -280,8 +290,7 @@ public class PageTurner extends FrameLayout {
 
 	void calculatePaths() {
 		_rightShadowWidth = (int)(_rightMost < _radius ? _rightMost : _radius) * 2;
-		_dirtyRect.set((int)Math.min(Math.min(_lastLeftMost, _leftMost), _orient), 0,
-				(int)Math.min(_lastRightMost, _rightMost) + _rightShadowWidth, _height);
+		LogDog.i(TAG, "calculatePaths leftMost=" + _leftMost);
 		float angle = _leftMost >= 0 ? _leftMost2Angle[(int)_leftMost] : _leftMost2Angle_minus[(int)-_leftMost];
 		float degree = (float)(angle * 180 / Math.PI);
 		_leftMostY = _leftMost > 0 ? _height - _radius + _radius * (float)Math.cos(angle) : _height;
@@ -295,21 +304,21 @@ public class PageTurner extends FrameLayout {
 		//int rectY1 = (int)(_height - _radius * 2);
 		//int rectX2 = (int)(_orient + _radius);
 		if(_leftMost > 0) {
-			_pLeft.moveTo(_dirtyRect.left, 0);
+			_pLeft.moveTo(0, 0);
 			_pLeft.lineTo(_leftMost, 0);
 			if(degree > 270) {
-				_pLeft.moveTo(_leftMost, _leftMostY);
+				_pLeft.lineTo(_leftMost, _leftMostY);
 				_pLeft.arcTo(_rect2, degree - 270, 270 - degree);
 				_pLeft.lineTo(_orient - _radius, _height - _radius);
 				_pLeft.arcTo(_rect1, -180, 270);
 				_pLeft.lineTo(_leftMost, _height);
 			} else {
-				_pLeft.moveTo(_leftMost, _leftMostY);
+				_pLeft.lineTo(_leftMost, _leftMostY);
 				_pLeft.arcTo(_rect1, 90 - degree, degree);
 				if(degree > 180)
 					_pLeft.lineTo(_leftMost, _height);
 			}
-			_pLeft.lineTo(_dirtyRect.left, _height);
+			_pLeft.lineTo(0, _height);
 		} else if(_orient > _radius) {
 			_pLeft.moveTo(_orient - _radius * 2, _height);
 			_pLeft.arcTo(_rect2, 90, -90);
@@ -337,8 +346,8 @@ public class PageTurner extends FrameLayout {
 			_pRight.lineTo(_leftMost, _leftMostY);
 			_pRight.arcTo(_rect1,  90 - degree, degree);
 		}
-		_pRight.lineTo(_dirtyRect.right, _height);
-		_pRight.lineTo(_dirtyRect.right, 0);
+		_pRight.lineTo(_width, _height);
+		_pRight.lineTo(_width, 0);
 		_pRight.close();
 		// draw the left page back
 		if(degree > 90 || (degree == 0 && _rightMost < _radius)) {
@@ -448,7 +457,11 @@ public class PageTurner extends FrameLayout {
 
 	@Override
 	public void dispatchDraw(@NonNull Canvas canvas) {
+		if (_turning != TURNING_NONE)
+			calculatePaths();
 		super.dispatchDraw(canvas);
+		if (_turning == TURNING_NONE)
+			return;
 		// draw page back, which is not in any of the children
 		// part 1
 		canvas.save();
@@ -490,23 +503,39 @@ public class PageTurner extends FrameLayout {
 		canvas.restore();
 	}
 
+	private boolean isTurningNext() { return _turning > TURNING_NONE; }
+	private boolean isTurningPrev() { return _turning < TURNING_NONE; }
+
 	@Override
 	public boolean drawChild(@NonNull Canvas canvas, @NonNull View child, long time) {
 		if (_turning == TURNING_NONE)
 			return super.drawChild(canvas, child, time);
-		if (child == _current && (_turning == TURNING_NEXT_MANUAL || _turning == TURNING_NEXT_AUTO)) {
+		if (child == _current && isTurningNext()) {
 			canvas.save();
 			canvas.clipPath(_pLeft);
 			child.draw(canvas);
 			canvas.restore();
 		}
-		else if (child == _next && (_turning == TURNING_NEXT_AUTO || _turning == TURNING_NEXT_MANUAL)) {
+		else if (child == _current && isTurningPrev()) {
 			canvas.save();
 			canvas.clipPath(_pRight);
 			child.draw(canvas);
 			canvas.restore();
 		}
-		return super.drawChild(canvas, child, time);
+		else if (child == _next && isTurningNext()) {
+			canvas.save();
+			canvas.clipPath(_pRight);
+			child.draw(canvas);
+			canvas.restore();
+		} else if (child == _previous && isTurningPrev()) {
+			canvas.save();
+			canvas.clipPath(_pLeft);
+			child.draw(canvas);
+			canvas.restore();
+		}
+		else
+			return super.drawChild(canvas, child, time);
+		return true;
 	}
 
 }
