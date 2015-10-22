@@ -10,7 +10,7 @@ import android.provider.BaseColumns;
 
 public class DB extends SQLiteOpenHelper {
 	
-	public static String TAG = "DB";
+	public static String TAG = "PDFMarker.DB";
 
 	public static abstract class FILES implements BaseColumns {
 		public static final String _T			= "FILES";

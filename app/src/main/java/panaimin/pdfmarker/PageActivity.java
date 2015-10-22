@@ -13,7 +13,7 @@ import android.widget.FrameLayout;
 
 public class PageActivity extends Activity {
 	
-	public static String TAG = "PAGE";
+	public static String TAG = "PDFMarker.Activity";
 	
 	boolean				_markMode = false;
 	StationaryDialog	_stationaryDialog = null;

@@ -10,7 +10,7 @@ import android.preference.PreferenceManager;
 
 public class PDFMaster {
 	
-	public static String		TAG = "PDF";
+	public static String		TAG = "PDFMarker.Master";
 	
 	public static final int		PAGE_PREVIOUS = 0;
 	public static final int		PAGE_CURRENT = 1;

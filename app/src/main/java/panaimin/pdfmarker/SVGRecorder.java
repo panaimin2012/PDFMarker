@@ -21,7 +21,7 @@ public class SVGRecorder {
 	
 	// static
 	
-	public static final String		TAG = "SVG";
+	public static final String		TAG = "PDFMarker.SVGRecorder";
 	
 	public static final int			PAGE_PREVIOUS = 0;
 	public static final int			PAGE_CURRENT = 1;
