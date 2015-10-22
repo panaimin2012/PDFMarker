@@ -199,9 +199,10 @@ public class PageTurner extends FrameLayout {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		if (_activity._markMode) {
+		if (_activity._markMode)
 			return false;
-		}
+		if (_turning != TURNING_NONE)
+			return true;
 		float x = ev.getX();
 		switch (ev.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
@@ -305,8 +306,6 @@ public class PageTurner extends FrameLayout {
 		_rect2.set(_orient - _radius * 3, _height - _radius * 2, _orient - _radius, _height);
 		// draw left bitmap
 		_pLeft.reset();
-		//int rectY1 = (int)(_height - _radius * 2);
-		//int rectX2 = (int)(_orient + _radius);
 		if(_leftMost > 0) {
 			_pLeft.moveTo(0, 0);
 			_pLeft.lineTo(_leftMost, 0);
@@ -367,14 +366,14 @@ public class PageTurner extends FrameLayout {
 				_pLeftBack1.moveTo(_leftMost, 0);
 				_pLeftBack1.lineTo(_leftMost, _leftMostY);
 				_pLeftBack1.arcTo(_rect1, 90 - degree, degree - 90);
-				_pLeftBack1.lineTo((int)Math.ceil(_orient + _radius), _height - _radius);
-				_pLeftBack1.lineTo((int)Math.ceil(_orient + _radius), 0);
+				_pLeftBack1.lineTo((int)(_orient + _radius), _height - _radius);
+				_pLeftBack1.lineTo((int)(_orient + _radius), 0);
 			} else {
 				_pLeftBack1.moveTo(_orient, 0);
 				_pLeftBack1.lineTo(_orient, _height - _radius * 2);
 				_pLeftBack1.arcTo(_rect1, -90, 90);
-				_pLeftBack1.lineTo((int)Math.ceil(_orient + _radius), _height - _radius);
-				_pLeftBack1.lineTo((int)Math.ceil(_orient + _radius), 0);
+				_pLeftBack1.lineTo((int)(_orient + _radius), _height - _radius);
+				_pLeftBack1.lineTo((int)(_orient + _radius), 0);
 			}
 			_pLeftBack1.close();
 			if(degree > 180 && _orient > 0) {

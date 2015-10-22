@@ -14,7 +14,6 @@ import org.xmlpull.v1.XmlSerializer;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.os.AsyncTask;
 import android.util.Xml;
 
 public class SVGRecorder {
@@ -23,13 +22,6 @@ public class SVGRecorder {
 	
 	public static final String		TAG = "PDFMarker.SVGRecorder";
 	
-	public static final int			PAGE_PREVIOUS = 0;
-	public static final int			PAGE_CURRENT = 1;
-	public static final int			PAGE_NEXT = 2;
-	
-	private static SVGRecorder[]	_instances = new SVGRecorder[3];
-	public static int				_currentFileId = -1;
-	public static int				_currentPageId = -100;
 	private static int				_width;
 	private static int				_height;
 	
@@ -38,67 +30,6 @@ public class SVGRecorder {
 		_height = height;
 	}
 	
-	static public void reset() {
-		if(_currentFileId >= 0) {
-			discardPage(PAGE_PREVIOUS);
-			discardPage(PAGE_CURRENT);
-			discardPage(PAGE_NEXT);
-			_currentFileId = -1;
-			_currentPageId = -100;
-		}
-	}
-	
-	static public SVGRecorder getInstance(int fileId, int pageId) {
-		if(_currentFileId != fileId || pageId != _currentPageId) {
-			if(_instances[PAGE_CURRENT] != null)
-				_instances[PAGE_CURRENT].saveSVG();
-		} else {
-			if(_instances[PAGE_CURRENT] == null)
-				_instances[PAGE_CURRENT] = new SVGRecorder(fileId, pageId);
-			return _instances[PAGE_CURRENT];
-		}
-		if(_currentFileId != fileId || pageId < _currentPageId - 2 || pageId > _currentPageId + 2) {
-			discardPage(PAGE_PREVIOUS);
-			discardPage(PAGE_CURRENT);
-			discardPage(PAGE_NEXT);
-			_instances[PAGE_CURRENT] = new SVGRecorder(fileId, pageId);
-		} else if(pageId == _currentPageId - 2) {
-			discardPage(PAGE_NEXT);
-			discardPage(PAGE_CURRENT);
-			_instances[PAGE_NEXT] = _instances[PAGE_PREVIOUS];
-			_instances[PAGE_CURRENT] = new SVGRecorder(fileId, pageId);
-			_instances[PAGE_PREVIOUS] = null;
-		} else if(pageId == _currentPageId - 1) {
-			discardPage(PAGE_NEXT);
-			_instances[PAGE_NEXT] = _instances[PAGE_CURRENT];
-			_instances[PAGE_CURRENT] = _instances[PAGE_PREVIOUS];
-			_instances[PAGE_PREVIOUS] = null;
-		} else if(pageId == _currentPageId + 1) {
-			discardPage(PAGE_PREVIOUS);
-			_instances[PAGE_PREVIOUS] = _instances[PAGE_CURRENT];
-			_instances[PAGE_CURRENT] = _instances[PAGE_NEXT];
-			_instances[PAGE_NEXT] = null;
-		} else if(pageId == _currentPageId + 2) {
-			discardPage(PAGE_PREVIOUS);
-			discardPage(PAGE_CURRENT);
-			_instances[PAGE_PREVIOUS] = _instances[PAGE_NEXT];
-			_instances[PAGE_CURRENT] = new SVGRecorder(fileId, pageId);
-			_instances[PAGE_NEXT] = null;
-		}
-		_currentFileId = fileId;
-		_currentPageId = pageId;
-		if(_instances[PAGE_CURRENT] == null)
-			_instances[PAGE_CURRENT] = new SVGRecorder(fileId, pageId);
-		_instances[PAGE_CURRENT].new AsyncLoad().execute(null, null, null);
-		return _instances[PAGE_CURRENT];
-	}
-	
-	static private void discardPage(int offset) {
-		if(_instances[offset] != null) {
-			_instances[offset] = null;
-		}
-	}
-
 	static private final String		ENCODING = "UTF-8";
 	static private final String		TAG_PATH = "PATH";
 	static private final String		TAG_POINT = "POINT";
@@ -107,9 +38,7 @@ public class SVGRecorder {
 	static private final String		ATTRIBUTE_X = "X";
 	static private final String		ATTRIBUTE_Y = "Y";
 	
-	// private
-	
-	private SVGRecorder(int fileId, int pageId) {
+	SVGRecorder(int fileId, int pageId) {
 		_fileId = fileId;
 		_pageId = pageId;
 		_paths = new ArrayList<>();
@@ -159,9 +88,9 @@ public class SVGRecorder {
 	}
 	
 	public void addPath(SVGPath newPath) {
+		boolean modified = false;
 		if(newPath.getPen() == Stationary.ERASER * Stationary.M + Stationary.E_SUPER) {
 			// super eraser: erase all intersect paths
-			boolean modified = false;
 			// reversed iterator, so don't need to worry about modified _paths
 			for(int i = _paths.size() - 1; i >= 0; --i) {
 				SVGPath path = _paths.get(i);
@@ -172,38 +101,34 @@ public class SVGRecorder {
 					modified = true;
 				}
 			}
-			if(modified) {
-				_modified = true;
-			}
 		}
 		else {
 			_paths.add(newPath);
-			_modified = true;
+			modified = true;
 		}
+		if (modified)
+			saveSVG();
 	}
 	
 	public void saveSVG() {
-		if(_modified) {
-			_modified = false;
-			String svgFile = PDFMarkerApp.instance().getFilesDir().getPath() + "/" + _fileId + "." + _pageId + ".svg";
-			XmlSerializer xml = Xml.newSerializer();
-			OutputStream out;
-			try {
-				out = new BufferedOutputStream(new FileOutputStream(svgFile));
-				xml.setOutput(out, ENCODING);
-				xml.startDocument(ENCODING, true);
-				xml.startTag(null, TAG_SIZE);
-				xml.attribute(null, ATTRIBUTE_X, String.valueOf(_width));
-				xml.attribute(null, ATTRIBUTE_Y, String.valueOf(_height));
-				xml.endTag(null, TAG_SIZE);
-				for(SVGPath path: _paths)
-					path.output(xml);
-				xml.endDocument();
-				xml.flush();
-				out.close();
-			} catch (Exception e) {
-				LogDog.e(TAG, "Error saving svg:" + e.getMessage());
-			}
+		String svgFile = PDFMarkerApp.instance().getFilesDir().getPath() + "/" + _fileId + "." + _pageId + ".svg";
+		XmlSerializer xml = Xml.newSerializer();
+		OutputStream out;
+		try {
+			out = new BufferedOutputStream(new FileOutputStream(svgFile));
+			xml.setOutput(out, ENCODING);
+			xml.startDocument(ENCODING, true);
+			xml.startTag(null, TAG_SIZE);
+			xml.attribute(null, ATTRIBUTE_X, String.valueOf(_width));
+			xml.attribute(null, ATTRIBUTE_Y, String.valueOf(_height));
+			xml.endTag(null, TAG_SIZE);
+			for(SVGPath path: _paths)
+				path.output(xml);
+			xml.endDocument();
+			xml.flush();
+			out.close();
+		} catch (Exception e) {
+			LogDog.e(TAG, "Error saving svg:" + e.getMessage());
 		}
 	}
 
@@ -215,7 +140,6 @@ public class SVGRecorder {
 
 	// private
 	
-	private boolean					_modified = false;
 	private int						_fileId = -100;
 	private int						_pageId = -100;
 	private ArrayList<SVGPath>		_paths;
@@ -327,17 +251,6 @@ public class SVGRecorder {
 		private float				_minY = Float.MAX_VALUE;
 		private float				_maxX = 0f;
 		private float				_maxY = 0f;
-	}
-	
-	private class AsyncLoad extends AsyncTask<Void, Void, Void> {
-		@Override
-		protected Void doInBackground(Void... params) {
-			if(_instances[PAGE_NEXT] == null && _currentPageId < PDFMaster.instance().countPages())
-				_instances[PAGE_NEXT] = new SVGRecorder(_currentFileId, _currentPageId + 1);
-			if(_instances[PAGE_PREVIOUS] == null && _currentPageId > 0)
-				_instances[PAGE_PREVIOUS] = new SVGRecorder(_currentFileId, _currentPageId - 1);
-			return null;
-		}
 	}
 	
 }

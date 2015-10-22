@@ -49,7 +49,6 @@ public class PageActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		_pageTurner._current._svgRecorder.saveSVG();
 		PDFMaster.instance().closePDF();
 	}
 

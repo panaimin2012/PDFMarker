@@ -143,7 +143,6 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 							f.delete();
 						}
 					}
-					SVGRecorder.reset();
 					DB.instance().cutEdge(_deletingFileId, null);
 					DB.instance().setLastPage(_deletingFileId, 0);
 					dialog.cancel();
