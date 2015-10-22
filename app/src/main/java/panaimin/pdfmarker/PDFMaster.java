@@ -76,11 +76,12 @@ public class PDFMaster {
 	public int countPages() {
 		return _pages;
 	}
+	public int currentPage() { return _currentPage; }
 	
 	// getCachedBitmap simply return the bitmap in cache
 	// should be called when bitmap is needed for page turning
 	// as it is still possible that the page turning will be canceled
-	public Bitmap getCachedBitmap(int offset) {
+	public synchronized Bitmap getCachedBitmap(int offset) {
 		LogDog.i(TAG, "getCachedBitmap " + offset);
 		if(_bitmaps[offset] == null) {
 			if(offset == PAGE_NEXT && _currentPage < _pages - 1)
@@ -191,7 +192,7 @@ public class PDFMaster {
 		}
 	}
 	
-	private synchronized Bitmap fetchBitmap(int page) {
+	private Bitmap fetchBitmap(int page) {
 		LogDog.i(TAG, "Fetch " + page);
 		try {
 			if(globals == 0)
@@ -258,10 +259,8 @@ public class PDFMaster {
 		@Override
 		protected Void doInBackground(Void... params) {
 			LogDog.i(TAG, "AsyncLoad doInBackGround start");
-			if(_bitmaps[PAGE_NEXT] == null && _currentPage < _pages - 1)
-				_bitmaps[PAGE_NEXT] = fetchBitmap(_currentPage + 1);
-			if(_bitmaps[PAGE_PREVIOUS] == null && _currentPage > 0)
-				_bitmaps[PAGE_PREVIOUS] = fetchBitmap(_currentPage - 1);
+			getCachedBitmap(PAGE_PREVIOUS);
+			getCachedBitmap(PAGE_NEXT);
 			LogDog.i(TAG, "AsyncLoad doInBackGround end");
 			return null;
 		}

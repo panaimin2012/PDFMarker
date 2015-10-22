@@ -67,7 +67,7 @@ public class PageTurner extends FrameLayout {
 	void initView() {
 		_activity = (PageActivity)getContext();
 		int fileId = _activity._fileId;
-		_pageId = _activity._pageId;
+		_pageId = PDFMaster.instance().currentPage();
 		// current
 		_current = new SVGView(_activity);
 		addView(_current);
@@ -190,7 +190,7 @@ public class PageTurner extends FrameLayout {
 					_turning = TURNING_NEXT_AUTO;
 					int timeLeft = (int)(SCROLL_TIME / (_width * 2) * (x + _width));
 					LogDog.i(TAG, "Start scrolling next from " + x + " in " + timeLeft + " ms");
-					_scroller.startScroll((int) x, 0, (int)(1 - x - _width), 0, timeLeft);
+					_scroller.startScroll((int) x, 0, (int) (1 - x - _width), 0, timeLeft);
 					postInvalidate();
 				}
 		}
@@ -206,14 +206,20 @@ public class PageTurner extends FrameLayout {
 		switch (ev.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
 				if (x < EDGE_WIDTH) {
-					_turning = TURNING_PREV_MANUAL;
-					_previous.setVisibility(VISIBLE);
-					setRightMost(x);
+					if (_pageId > 0) {
+						_turning = TURNING_PREV_MANUAL;
+						_previous.setVisibility(VISIBLE);
+						setRightMost(x);
+					} else
+						Utility.instance().showToast(R.string.msg_firstpage);
 					return true;
 				} else if (x > _width - EDGE_WIDTH) {
-					_turning = TURNING_NEXT_MANUAL;
-					_next.setVisibility(VISIBLE);
-					setLeftMost(x);
+					if (_pageId < PDFMaster.instance().countPages() - 1) {
+						_turning = TURNING_NEXT_MANUAL;
+						_next.setVisibility(VISIBLE);
+						setLeftMost(x);
+					} else
+						Utility.instance().showToast(R.string.msg_lastpage);
 					return true;
 				}
 				break;
@@ -242,24 +248,22 @@ public class PageTurner extends FrameLayout {
 		else {
 			// scroll finished
 			_current.setVisibility(INVISIBLE);
+			int newPage;
 			if (isTurningNext()) {
 				SVGView v = _previous;
 				_previous = _current;
 				_current = _next;
 				_next = v;
-				_pageId ++;
-				if (_pageId < PDFMaster.instance().countPages() - 1)
-					_next.setPage(_activity._fileId, _pageId + 1);
+				newPage = _pageId + 1;
 			} else {
 				SVGView v = _next;
 				_next = _current;
 				_current = _previous;
 				_previous = v;
-				_pageId --;
-				if (_pageId > 0)
-					_next.setPage(_activity._fileId, _pageId - 1);
+				newPage = _pageId - 1;
 			}
 			_turning = TURNING_NONE;
+			turnToPage(newPage);
 		}
 	}
 
@@ -273,14 +277,12 @@ public class PageTurner extends FrameLayout {
 			_next.setPage(fileId, _pageId + 1);
 		_current.refresh();
 		DB.instance().setLastPage(fileId, _pageId);
-		PDFMarkerApp.instance().showToast("Page " + (_pageId + 1));
+		Utility.instance().showToast("Page " + (_pageId + 1));
 	}
 
 	private RectF _rect1 = new RectF();
 	private RectF _rect2 = new RectF();
-	private float _lastLeftMost;
 	private float _leftMostY;
-	private float _lastRightMost;
 	private float _leftShadowStart;
 	private int   _rightShadowWidth;
 	private Path  _pLeft = new Path();
@@ -453,8 +455,6 @@ public class PageTurner extends FrameLayout {
 			}
 			_pLeftShadow.close();
 		}
-		_lastRightMost = _rightMost;
-		_lastLeftMost = _leftMost;
 	}
 
 	@Override

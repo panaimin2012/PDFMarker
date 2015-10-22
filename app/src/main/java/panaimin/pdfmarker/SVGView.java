@@ -17,7 +17,7 @@ public class SVGView extends View {
 
 	private int					_width = 0;
 	private int					_height = 0;
-	private SVGRecorder			_svgRecorder;
+	SVGRecorder					_svgRecorder;
 	private Bitmap				_pdf;
 	private SVGRecorder.SVGPath _currentPath;
 	private PageActivity		_activity;
@@ -57,7 +57,6 @@ public class SVGView extends View {
 	}
 
 	public void refresh() {
-		LogDog.i(TAG, "refresh page " + _pageId);
 		_svgRecorder = SVGRecorder.getInstance(_fileId, _pageId);
 		if (this == _activity._pageTurner._current)
 			_pdf = PDFMaster.instance().gotoPage(_pageId);
@@ -92,7 +91,7 @@ public class SVGView extends View {
 			_scale = 1.0f;
 			setDynamicMatrix(null);
 			refresh();
-			PDFMarkerApp.instance().showToast(getResources().getString(R.string.msg_cut));
+			Utility.instance().showToast(getResources().getString(R.string.msg_cut));
 		}
 	}
 
@@ -187,7 +186,7 @@ public class SVGView extends View {
 			else if (action == MotionEvent.ACTION_UP) {
 				if (_showGoto) {
 					GotoDialog dlg = new GotoDialog(_activity);
-					dlg.setPage(_activity._pageId + 1);
+					dlg.setPage(PDFMaster.instance().currentPage() + 1);
 					dlg.show();
 				}
 				_showGoto = false;

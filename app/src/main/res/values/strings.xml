@@ -21,6 +21,7 @@
     <string name="msg_cut">Page edge cut</string>
     <string name="msg_firstpage">Already at the first page</string>
     <string name="msg_lastpage">Already at the last page</string>
+    <string name="msg_wrong_page">Wrong page number</string>
 	<string name="goto_page">Go to page:</string>
 	<string name="max_page">Max</string>
 	<string name="go">Go</string>

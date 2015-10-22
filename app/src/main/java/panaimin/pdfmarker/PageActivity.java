@@ -18,7 +18,6 @@ public class PageActivity extends Activity {
 	boolean				_markMode = false;
 	StationaryDialog	_stationaryDialog = null;
 	int					_fileId;
-	int					_pageId;
 	PageTurner			_pageTurner;
 
 	@Override
@@ -40,8 +39,9 @@ public class PageActivity extends Activity {
 		super.onStart();
 		Cursor cursor = DB.instance().getFileInfo(_fileId);
 		String fileName = cursor.getString(cursor.getColumnIndex(DB.FILES._FILE));
-		_pageId = cursor.getInt(cursor.getColumnIndex(DB.FILES._PAGE));
+		int pageId = cursor.getInt(cursor.getColumnIndex(DB.FILES._PAGE));
 		PDFMaster.instance().openPDF(cursor);
+		PDFMaster.instance().gotoPage(pageId);
 		cursor.close();
 		setTitle(fileName);
 	}
@@ -49,7 +49,7 @@ public class PageActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		SVGRecorder.getInstance(_fileId, _pageId).saveSVG();
+		_pageTurner._current._svgRecorder.saveSVG();
 		PDFMaster.instance().closePDF();
 	}
 

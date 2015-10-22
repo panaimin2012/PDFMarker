@@ -26,9 +26,11 @@ public class GotoDialog extends Dialog implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		int n = Integer.parseInt(_pageNumber.getText().toString());
-		if(n > 0 && n <= PDFMaster.instance().countPages()) {
-			_activity._pageTurner.turnToPage(n - 1);
+		if (n < 1 || n > PDFMaster.instance().countPages()) {
+			Utility.instance().showToast(R.string.msg_wrong_page);
+			return;
 		}
+		_activity._pageTurner.turnToPage(n - 1);
 		dismiss();
 	}
 	
