@@ -26,7 +26,7 @@ public class PageTurner extends FrameLayout {
 	private static final int[]	LEFT_SHADOW_COLORS = new int[] { 0, LEFT_SHADOW_DARK };
 	private static final int[]	RIGHT_SHADOW_COLORS = new int[] { 0xff000000, 0};
 	private static final int[]	BACK1_COLORS = new int[] { 0xffd0d0d0, 0xff404040 };
-	private static final int	SCROLL_TIME = 2000;
+	private static final float	SCROLL_TIME = 2000f;
 
 	// I try to simulate pulling the page edge
 	// but unfortunately solving this equation is an advanced topic
@@ -136,6 +136,7 @@ public class PageTurner extends FrameLayout {
 	public void setLeftMost(float leftMost) {
 		//float targetLeftMost = Math.max(Math.min(leftMost, _width - 1), -_width + 1);
 		_leftMost = leftMost;
+		LogDog.i(TAG, "setLeftMost to " + leftMost);
 		int orient = _leftMost >= 0 ? _leftMost2Orient[(int)_leftMost] :
 			_leftMost2Orient_minus[(int)-_leftMost];
 		float rightMost =
@@ -145,7 +146,6 @@ public class PageTurner extends FrameLayout {
 	}
 
 	private void setRightMost(float rightMost) {
-		LogDog.i(TAG, "setRightMost " + rightMost);
 		_rightMost = rightMost;
 		if(_rightMost < _radius) {
 			_orient = 0;
@@ -165,14 +165,12 @@ public class PageTurner extends FrameLayout {
 					degree > 270 ? (int)(_orient - _radius * 2 - _radius * Math.sin(angle)) :
 						(int) (_orient + _radius * Math.sin(angle));
 		}
-		LogDog.i(TAG, "setRightMost leftMost=" + _leftMost);
 		postInvalidate();
 	}
 
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent ev) {
 		float x = ev.getX();
-		LogDog.i(TAG, "onTouchEvent " + ev.getActionMasked() + " " + x);
 		switch (ev.getActionMasked()) {
 			case MotionEvent.ACTION_MOVE :
 				if (_turning == TURNING_PREV_MANUAL)
@@ -183,11 +181,17 @@ public class PageTurner extends FrameLayout {
 			case MotionEvent.ACTION_UP :
 				if (_turning == TURNING_PREV_MANUAL) {
 					_turning = TURNING_PREV_AUTO;
-					_scroller.startScroll((int) x, 0, _width - (int) x, 0, SCROLL_TIME);
+					int timeLeft = (int)(SCROLL_TIME / _width * x);
+					LogDog.i(TAG, "Start scrolling prev from " + x + " in " + timeLeft + " ms");
+					_scroller.startScroll((int) x, 0, _width - (int) x - 1, 0, timeLeft);
+					postInvalidate();
 				}
 				else if (_turning == TURNING_NEXT_MANUAL) {
 					_turning = TURNING_NEXT_AUTO;
-					_scroller.startScroll((int) x, 0, (int) -x, 0, SCROLL_TIME);
+					int timeLeft = (int)(SCROLL_TIME / (_width * 2) * (x + _width));
+					LogDog.i(TAG, "Start scrolling next from " + x + " in " + timeLeft + " ms");
+					_scroller.startScroll((int) x, 0, (int)(1 - x - _width), 0, timeLeft);
+					postInvalidate();
 				}
 		}
 		return true;
@@ -199,7 +203,6 @@ public class PageTurner extends FrameLayout {
 			return false;
 		}
 		float x = ev.getX();
-		LogDog.i(TAG, "onInterceptTouchEvent " + ev.getActionMasked() + " " + x);
 		switch (ev.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
 				if (x < EDGE_WIDTH) {
@@ -290,7 +293,6 @@ public class PageTurner extends FrameLayout {
 
 	void calculatePaths() {
 		_rightShadowWidth = (int)(_rightMost < _radius ? _rightMost : _radius) * 2;
-		LogDog.i(TAG, "calculatePaths leftMost=" + _leftMost);
 		float angle = _leftMost >= 0 ? _leftMost2Angle[(int)_leftMost] : _leftMost2Angle_minus[(int)-_leftMost];
 		float degree = (float)(angle * 180 / Math.PI);
 		_leftMostY = _leftMost > 0 ? _height - _radius + _radius * (float)Math.cos(angle) : _height;
