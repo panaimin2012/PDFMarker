@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Region;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
@@ -129,6 +130,8 @@ public class PageTurner extends FrameLayout {
 					_leftMost2Angle[lastLeftMost] = angle;
 				}
 			}
+			_leftMost2Orient_minus[0] = _leftMost2Orient[0];
+			_leftMost2Angle_minus[0] = _leftMost2Angle[0];
 		}
 	}
 
@@ -286,7 +289,6 @@ public class PageTurner extends FrameLayout {
 	private float _leftMostY;
 	private float _leftShadowStart;
 	private int   _rightShadowWidth;
-	private Path  _pLeft = new Path();
 	private Path  _pLeftShadow = new Path();
 	private Path  _pRight = new Path();
 	private Path  _pLeftBack1 = new Path();
@@ -304,40 +306,6 @@ public class PageTurner extends FrameLayout {
 		else
 			_rect1.set(_orient - _radius, _height - _radius * 2, _orient + _radius, _height);
 		_rect2.set(_orient - _radius * 3, _height - _radius * 2, _orient - _radius, _height);
-		// draw left bitmap
-		_pLeft.reset();
-		if(_leftMost > 0) {
-			_pLeft.moveTo(0, 0);
-			_pLeft.lineTo(_leftMost, 0);
-			if(degree > 270) {
-				_pLeft.lineTo(_leftMost, _leftMostY);
-				_pLeft.arcTo(_rect2, degree - 270, 270 - degree);
-				_pLeft.lineTo(_orient - _radius, _height - _radius);
-				_pLeft.arcTo(_rect1, -180, 270);
-				_pLeft.lineTo(_leftMost, _height);
-			} else {
-				_pLeft.lineTo(_leftMost, _leftMostY);
-				_pLeft.arcTo(_rect1, 90 - degree, degree);
-				if(degree > 180)
-					_pLeft.lineTo(_leftMost, _height);
-			}
-			_pLeft.lineTo(0, _height);
-		} else if(_orient > _radius) {
-			_pLeft.moveTo(_orient - _radius * 2, _height);
-			_pLeft.arcTo(_rect2, 90, -90);
-			_pLeft.lineTo(_orient - _radius, _height - _radius);
-			_pLeft.arcTo(_rect1, -180, 270);
-		} else if(_orient > 0) {
-			_pLeft.moveTo(_orient - _radius, _height - _radius);
-			_pLeft.arcTo(_rect1,  -180, 270);
-			_pLeft.lineTo(_orient - _radius, _height);
-		} else {
-			_pLeft.moveTo(0, _height - _rightMost * 2);
-			_pLeft.arcTo(_rect1, -90, 180);
-			//rectY1 = (int)(_height - _rightMost * 2);
-			//rectX2 = (int)_rightMost;
-		}
-		_pLeft.close();
 		// draw the right bitmap
 		_pRight.reset();
 		if(_rightMost < _radius || degree > 90) {
@@ -385,7 +353,7 @@ public class PageTurner extends FrameLayout {
 					_pLeftBack2.arcTo(_rect1, 90 - degree, degree - 180);
 				} else {
 					_pLeftBack2.moveTo(_orient - _radius, 0);
-					_pLeftBack2.lineTo(_orient - _radius, _height - _radius);
+					_pLeftBack2.lineTo((int)Math.ceil(_orient - _radius), _height - _radius);
 					_pLeftBack2.arcTo(_rect1, -180, 90);
 				}
 				_pLeftBack2.lineTo(_orient, _height - _radius * 2);
@@ -396,7 +364,7 @@ public class PageTurner extends FrameLayout {
 					_pLeftBack3.reset();
 					_pLeftBack3.moveTo(_leftMost, 0);
 					_pLeftBack3.lineTo(_orient - _radius, 0);
-					_pLeftBack3.lineTo(_orient - _radius, _height - _radius);
+					_pLeftBack3.lineTo((int)Math.floor(_orient - _radius), _height - _radius);
 					_pLeftBack3.arcTo(_rect2, 0, degree - 270);
 					_pLeftBack3.lineTo(_leftMost, _leftMostY);
 					_pLeftBack3.close();
@@ -511,26 +479,19 @@ public class PageTurner extends FrameLayout {
 	public boolean drawChild(@NonNull Canvas canvas, @NonNull View child, long time) {
 		if (_turning == TURNING_NONE)
 			return super.drawChild(canvas, child, time);
-		if (child == _current && isTurningNext()) {
+		if ((child == _current && isTurningNext()) || (child == _previous && isTurningPrev())) {
+			// left bitmap = full range - right - left back 1 - left back 2 - left back 3
 			canvas.save();
-			canvas.clipPath(_pLeft);
+			canvas.clipPath(_pRight, Region.Op.DIFFERENCE);
+			canvas.clipPath(_pLeftBack1, Region.Op.DIFFERENCE);
+			canvas.clipPath(_pLeftBack2, Region.Op.DIFFERENCE);
+			canvas.clipPath(_pLeftBack3, Region.Op.DIFFERENCE);
 			child.draw(canvas);
 			canvas.restore();
 		}
-		else if (child == _current && isTurningPrev()) {
+		else if ((child == _current && isTurningPrev()) || (child == _next && isTurningNext())) {
 			canvas.save();
 			canvas.clipPath(_pRight);
-			child.draw(canvas);
-			canvas.restore();
-		}
-		else if (child == _next && isTurningNext()) {
-			canvas.save();
-			canvas.clipPath(_pRight);
-			child.draw(canvas);
-			canvas.restore();
-		} else if (child == _previous && isTurningPrev()) {
-			canvas.save();
-			canvas.clipPath(_pLeft);
 			child.draw(canvas);
 			canvas.restore();
 		}
