@@ -338,9 +338,11 @@ public class PageTurner extends FrameLayout {
 		_pRight.lineTo(_width, 0);
 		_pRight.close();
 		// draw the left page back
+		_pLeftBack1.reset();
+		_pLeftBack2.reset();
+		_pLeftBack3.reset();
 		if(degree > 90 || (degree == 0 && _rightMost < _radius)) {
 			// part 1
-			_pLeftBack1.reset();
 			if(_rightMost < _radius) {
 				_pLeftBack1.moveTo(0, 0);
 				_pLeftBack1.lineTo(0, _height - _rightMost * 2);
@@ -360,34 +362,32 @@ public class PageTurner extends FrameLayout {
 				_pLeftBack1.lineTo((int)(_orient + _radius), _height - _radius);
 				_pLeftBack1.lineTo((int)(_orient + _radius), 0);
 			}
-			_pLeftBack1.close();
 			if(degree > 180 && _orient > 0) {
 				// part 2
-				_pLeftBack2.reset();
 				if(degree <= 270) {
 					_pLeftBack2.moveTo(_leftMost, 0);
 					_pLeftBack2.lineTo(_leftMost, _leftMostY);
 					_pLeftBack2.arcTo(_rect1, 90 - degree, degree - 180);
 				} else {
-					_pLeftBack2.moveTo(_orient - _radius, 0);
-					_pLeftBack2.lineTo((int)Math.ceil(_orient - _radius), _height - _radius);
+					_pLeftBack2.moveTo((int)Math.floor(_orient - _radius), 0);
+					_pLeftBack2.lineTo((int)Math.floor(_orient - _radius), _height - _radius);
 					_pLeftBack2.arcTo(_rect1, -180, 90);
 				}
 				_pLeftBack2.lineTo(_orient, _height - _radius * 2);
 				_pLeftBack2.lineTo(_orient, 0);
-				_pLeftBack2.close();
 				if(degree > 270 && _orient > _radius) {
 					// part 3
-					_pLeftBack3.reset();
 					_pLeftBack3.moveTo(_leftMost, 0);
-					_pLeftBack3.lineTo(_orient - _radius, 0);
-					_pLeftBack3.lineTo((int)Math.floor(_orient - _radius), _height - _radius);
+					_pLeftBack3.lineTo((int) Math.ceil(_orient - _radius), 0);
+					_pLeftBack3.lineTo((int) Math.ceil(_orient - _radius), _height - _radius);
 					_pLeftBack3.arcTo(_rect2, 0, degree - 270);
 					_pLeftBack3.lineTo(_leftMost, _leftMostY);
-					_pLeftBack3.close();
 				}
 			}
 		}
+		_pLeftBack1.close();
+		_pLeftBack2.close();
+		_pLeftBack3.close();
 		// right shadow
 		_pRightShadow.reset();
 		if(_rightMost < _radius) {
@@ -412,8 +412,8 @@ public class PageTurner extends FrameLayout {
 		}
 		_pRightShadow.close();
 		// left shadow
+		_pLeftShadow.reset();
 		if(degree > 90 || (degree == 0 && _rightMost < _radius)) {
-			_pLeftShadow.reset();
 			_leftShadowStart = 0f;
 			if(_rightMost < _radius) {
 				_pLeftShadow.moveTo(0, _height - _rightMost * 2);
@@ -437,8 +437,8 @@ public class PageTurner extends FrameLayout {
 				_pLeftShadow.arcTo(_rect1, -180, 270);
 				_leftShadowStart = _orient - _radius * 2;
 			}
-			_pLeftShadow.close();
 		}
+		_pLeftShadow.close();
 	}
 
 	@Override
@@ -463,14 +463,14 @@ public class PageTurner extends FrameLayout {
 		canvas.save();
 		canvas.clipPath(_pLeftBack2);
 		_leftBack.setOrientation(GradientDrawable.Orientation.RIGHT_LEFT);
-		_leftBack.setBounds((int) (_orient - _radius), 0, _orient, (int) (_height - _radius));
+		_leftBack.setBounds((int)Math.floor(_orient - _radius), 0, _orient, (int) (_height - _radius));
 		_leftBack.draw(canvas);
 		canvas.restore();
 		// part 3
 		canvas.save();
 		canvas.clipPath(_pLeftBack3);
 		_leftBack.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);
-		_leftBack.setBounds((int)(_orient - _radius * 2), 0, (int)(_orient - _radius), (int)_leftMostY);
+		_leftBack.setBounds((int)(_orient - _radius * 2), 0, (int)Math.ceil(_orient - _radius), (int)_leftMostY);
 		_leftBack.draw(canvas);
 		canvas.restore();
 		// right shadow
