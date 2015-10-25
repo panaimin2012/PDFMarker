@@ -27,7 +27,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class Utility {
+class Utility {
 
 	private static Utility _instance = null;
 	private static String TAG = "PDFMarker.Utility";
@@ -38,67 +38,67 @@ public class Utility {
 	private Toast _toast = null;
 	private SharedPreferences _sp = null;
 
-	public static Utility instance() {
+	static Utility instance() {
 		if (_instance == null)
 			throw new RuntimeException("");
 		return _instance;
 	}
 
-	public static Utility instance(Context context) {
+	static Utility instance(Context context) {
 		if (_instance == null)
 			_instance = new Utility(context);
 		return _instance;
 	}
 
-	public String getTimeString() {
+	String getTimeString() {
 		return _hmFormat.format(new Date(System.currentTimeMillis()));
 	}
 
-	public long getPref(String key, long def) { return _sp.getLong(key, def); }
-	public String getPref(String key, String def) { return _sp.getString(key, def); }
-	public int getPref(String key, int def) { return _sp.getInt(key, def); }
-	public boolean getPref(String key, boolean def) { return _sp.getBoolean(key, def); }
+	long getPref(String key, long def) { return _sp.getLong(key, def); }
+	String getPref(String key, String def) { return _sp.getString(key, def); }
+	int getPref(String key, int def) { return _sp.getInt(key, def); }
+	boolean getPref(String key, boolean def) { return _sp.getBoolean(key, def); }
 
-	public void setPref(String key, String value) {
+	void setPref(String key, String value) {
 		SharedPreferences.Editor editor = _sp.edit();
 		editor.putString(key, value);
 		editor.apply();
 	}
 
-	public void setPref(String key, int value) {
+	void setPref(String key, int value) {
 		SharedPreferences.Editor editor = _sp.edit();
 		editor.putInt(key, value);
 		editor.apply();
 	}
 
-	public void setPref(String key, long value) {
+	void setPref(String key, long value) {
 		SharedPreferences.Editor editor = _sp.edit();
 		editor.putLong(key, value);
 		editor.apply();
 	}
 
-	public void setPref(String key, boolean value) {
+	void setPref(String key, boolean value) {
 		SharedPreferences.Editor editor = _sp.edit();
 		editor.putBoolean(key, value);
 		editor.apply();
 	}
 
-	public void showToast(String s) {
+	void showToast(String s) {
 		if(_toast != null)
 			_toast.cancel();
 		_toast = Toast.makeText(_context, s, Toast.LENGTH_SHORT);
 		_toast.show();
 	}
 
-	public void showToast(int resId) {
+	void showToast(int resId) {
 		showToast(_context.getString(resId));
 	}
 
-	public boolean isChinese() {
+	boolean isChinese() {
 		return Locale.getDefault().getLanguage().equals(Locale.CHINESE.getLanguage());
 	}
 
-	public boolean isJapanese() {
+	boolean isJapanese() {
 		return Locale.getDefault().getLanguage().equals(Locale.JAPANESE.getLanguage());
 	}
 

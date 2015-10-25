@@ -25,11 +25,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Matrix;
 import android.provider.BaseColumns;
 
-public class DB extends SQLiteOpenHelper {
+class DB extends SQLiteOpenHelper {
 	
-	public static String TAG = "PDFMarker.DB";
+	static String TAG = "PDFMarker.DB";
 
-	public static abstract class FILES implements BaseColumns {
+	static abstract class FILES implements BaseColumns {
 		public static final String _T			= "FILES";
 		public static final String _PATH		= "_path";
 		public static final String _FILE		= "_file";
@@ -45,13 +45,13 @@ public class DB extends SQLiteOpenHelper {
 		public static final String _DELETED		= "_deleted";
 	}
 	
-	static public DB instance() {
+	static DB instance() {
 		if(_instance == null)
 			_instance = new DB(PDFMarkerApp.instance());
 		return _instance;
 	}
 	
-	public int insert(String file, String path) {
+	int insert(String file, String path) {
 		// first check if the file is already in database
 		String[] columns = new String[] { DB.FILES._ID, DB.FILES._DELETED };
 		String where = DB.FILES._FILE + " = ? AND " + DB.FILES._PATH + " = ? ";
@@ -75,14 +75,14 @@ public class DB extends SQLiteOpenHelper {
 		return id;
 	}
 	
-	public void markDeleted(int fileId, boolean deleted) {
+	void markDeleted(int fileId, boolean deleted) {
 		String where = " WHERE " + FILES._ID + " = " + fileId;
 		int flag = deleted ? 1 : 0;
 		String sql = "UPDATE " + FILES._T + " SET " + FILES._DELETED + " =  " + flag + where;
 		getWritableDatabase().execSQL(sql);
 	}
 	
-	public Cursor getFileInfo(int fileId) {
+	Cursor getFileInfo(int fileId) {
 		String[] columns = new String[] {
 			DB.FILES._ID, DB.FILES._FILE, DB.FILES._PATH,  DB.FILES._PAGE,
 			DB.FILES._MATRIX0, DB.FILES._MATRIX2, DB.FILES._MATRIX5 };
@@ -92,7 +92,7 @@ public class DB extends SQLiteOpenHelper {
 		return cursor;
 	}
 	
-	public Cursor getFiles() {
+	Cursor getFiles() {
 		String[] cs = new String[] { FILES._ID, FILES._PATH, FILES._FILE, FILES._PAGE, FILES._ORDER };
 		String where = FILES._DELETED + " = 0 ";
 		String orderBy = FILES._ORDER + " DESC ";
@@ -101,7 +101,7 @@ public class DB extends SQLiteOpenHelper {
 		return cursor;
 	}
 	
-	public void onFileOpen(int fileId) {
+	void onFileOpen(int fileId) {
 		String[] cs = new String[] { "MAX(" + FILES._ORDER + ")" };
 		Cursor cursor = getReadableDatabase().query(FILES._T, cs, null, null, null, null, null);
 		cursor.moveToFirst();
@@ -110,14 +110,14 @@ public class DB extends SQLiteOpenHelper {
 		getWritableDatabase().execSQL(s);
 	}
 	
-	public void setLastPage(int fileId, int page) {
+	void setLastPage(int fileId, int page) {
 		ContentValues cv = new ContentValues();
 		cv.put(FILES._PAGE, page);
 		String where = FILES._ID + " = " + fileId;
 		getWritableDatabase().update(FILES._T, cv, where, null);
 	}
 	
-	public void cutEdge(int fileId, Matrix matrix) {
+	void cutEdge(int fileId, Matrix matrix) {
 		ContentValues cv = new ContentValues();
 		float[] mv = new float[9];
 		if(matrix != null)

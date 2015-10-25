@@ -35,9 +35,9 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-public class LogDog implements UncaughtExceptionHandler {
+class LogDog implements UncaughtExceptionHandler {
 
-	public static String 				TAG = "LogDog";
+	static String 				TAG = "LogDog";
 
 	private static HashSet<String>		_tags = new HashSet<>();
 	private static boolean				_adb = true;
@@ -47,11 +47,11 @@ public class LogDog implements UncaughtExceptionHandler {
 //		_tags.add(PageActivity.TAG);
 	}
 
-	public static LogDog instance() {
+	static LogDog instance() {
 		return _instance;
 	}
 
-	public static void i(String tag, String message) {
+	static void i(String tag, String message) {
 		if (_adb) {
 			Log.i(tag, message);
 		}
@@ -64,7 +64,7 @@ public class LogDog implements UncaughtExceptionHandler {
 		}
 	}
 
-	public static void e(String tag, String message) {
+	static void e(String tag, String message) {
 		if (_adb) {
 			Log.e(tag, message);
 		}
@@ -77,7 +77,7 @@ public class LogDog implements UncaughtExceptionHandler {
 		}
 	}
 
-	public static void w(String tag, String message) {
+	static void w(String tag, String message) {
 		if (_adb) {
 			Log.w(tag, message);
 		}
@@ -90,13 +90,13 @@ public class LogDog implements UncaughtExceptionHandler {
 		}
 	}
 
-	public void init(Context context) {
+	void init(Context context) {
 		_context = context;
 		_defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(this);
 	}
 
-	public void close() {
+	void close() {
 		if(_writer != null) {
 			_writer.close();
 			_writer = null;

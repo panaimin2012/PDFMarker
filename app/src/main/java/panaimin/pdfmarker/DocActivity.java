@@ -17,8 +17,6 @@ package panaimin.pdfmarker;
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,7 +36,7 @@ public class DocActivity extends Activity {
 			String doc = extras.getString("DOC");
 			String url = "file:///android_asset/";
 			url += doc;
-			if(Locale.getDefault().equals(Locale.CHINA))
+			if(Utility.instance().isChinese())
 				url += ".zh";
 			url += ".html";
 			webView.loadUrl(url);

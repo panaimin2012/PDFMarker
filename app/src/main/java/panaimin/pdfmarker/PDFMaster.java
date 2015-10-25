@@ -25,21 +25,21 @@ import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
-public class PDFMaster {
+class PDFMaster {
 	
-	public static String		TAG = "PDFMarker.Master";
+	static String		TAG = "PDFMarker.Master";
 	
-	public static final int		PAGE_PREVIOUS = 0;
-	public static final int		PAGE_CURRENT = 1;
-	public static final int		PAGE_NEXT = 2;
+	static final int		PAGE_PREVIOUS = 0;
+	static final int		PAGE_CURRENT = 1;
+	static final int		PAGE_NEXT = 2;
 
-	static public PDFMaster instance() {
+	static PDFMaster instance() {
 		if(_instance == null)
 			_instance = new PDFMaster();
 		return _instance;
 	}
 	
-	public boolean openPDF(Cursor cursor) {
+	boolean openPDF(Cursor cursor) {
 		if(globals != 0) {
 			LogDog.e(TAG, "Previous open file is not properly closed!");
 			destroying();
@@ -90,15 +90,15 @@ public class PDFMaster {
 		return true;
 	}
 	
-	public int countPages() {
+	int countPages() {
 		return _pages;
 	}
-	public int currentPage() { return _currentPage; }
+	int currentPage() { return _currentPage; }
 	
 	// getCachedBitmap simply return the bitmap in cache
 	// should be called when bitmap is needed for page turning
 	// as it is still possible that the page turning will be canceled
-	public synchronized Bitmap getCachedBitmap(int offset) {
+	synchronized Bitmap getCachedBitmap(int offset) {
 		LogDog.i(TAG, "getCachedBitmap " + offset);
 		if(_bitmaps[offset] == null) {
 			if(offset == PAGE_NEXT && _currentPage < _pages - 1)
@@ -111,7 +111,7 @@ public class PDFMaster {
 		return _bitmaps[offset];
 	}
 	
-	public Matrix getFixedMatrix(int width, int height) {
+	Matrix getFixedMatrix(int width, int height) {
 		LogDog.i(TAG, "getFixedMatrix " + width + "," + height);
 		// calculate scale matrix which fit the PDF to screen
 		boolean scaleChanged = false;
@@ -151,7 +151,7 @@ public class PDFMaster {
 		return _fixedMatrix;
 	}
 	
-	public void cutEdge(Matrix matrix) {
+	void cutEdge(Matrix matrix) {
 		LogDog.i(TAG, "cutEdge");
 		if(_cutEdgeMatrix != null)
 			_cutEdgeMatrix.postConcat(matrix);
@@ -164,7 +164,7 @@ public class PDFMaster {
 	
 	// gotoPage will change the underline current index of page
 	// and should be called when actual page is shown
-	public Bitmap gotoPage(int page) {
+	Bitmap gotoPage(int page) {
 		LogDog.i(TAG, "GOTO " + page + " from " + _currentPage);
 		if(page == _currentPage)
 			return getCachedBitmap(PAGE_CURRENT);
@@ -229,7 +229,7 @@ public class PDFMaster {
 		return null;
 	}
 	
-	public void closePDF() {
+	void closePDF() {
 		LogDog.i(TAG, "close " + _openFile);
 		destroying();
 		globals = 0;

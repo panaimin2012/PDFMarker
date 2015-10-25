@@ -153,7 +153,7 @@ public class PageTurner extends FrameLayout {
 	}
 
 	// setLeftMost is called when manually turning to next page
-	public void setLeftMost(float leftMost) {
+	void setLeftMost(float leftMost) {
 		//float targetLeftMost = Math.max(Math.min(leftMost, _width - 1), -_width + 1);
 		_leftMost = leftMost;
 		LogDog.i(TAG, "setLeftMost to " + leftMost);
@@ -313,7 +313,7 @@ public class PageTurner extends FrameLayout {
 	private Path  _pLeftBack3 = new Path();
 	private Path  _pRightShadow = new Path();
 
-	void calculatePaths() {
+	private void calculatePaths() {
 		_rightShadowWidth = (int)(_rightMost < _radius ? _rightMost : _radius) * 2;
 		float angle = _leftMost >= 0 ? _leftMost2Angle[(int)_leftMost] : _leftMost2Angle_minus[(int)-_leftMost];
 		float degree = (float)(angle * 180 / Math.PI);

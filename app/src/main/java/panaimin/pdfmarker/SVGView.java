@@ -73,7 +73,7 @@ public class SVGView extends View {
 			refresh();
 	}
 
-	public void refresh() {
+	void refresh() {
 		_svgRecorder = new SVGRecorder(_fileId, _pageId);
 		if (this == _activity._pageTurner._current)
 			_pdf = PDFMaster.instance().gotoPage(_pageId);

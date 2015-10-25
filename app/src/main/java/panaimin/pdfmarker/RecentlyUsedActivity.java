@@ -37,7 +37,7 @@ import android.widget.SimpleCursorAdapter;
 
 public class RecentlyUsedActivity extends ListActivity implements OnItemLongClickListener {
 	
-	public static String TAG = "RECENT";
+	static String TAG = "PDFMarker.Recent";
 
 	private CursorAdapter	_adapter;
 

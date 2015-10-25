@@ -25,7 +25,7 @@ import android.util.SparseArray;
 
 // pure static class provides current holding stationary and it's paint
 
-public class Stationary {
+class Stationary {
 	
 	// main types
 	static public final int	PENCIL = 1;
@@ -61,7 +61,7 @@ public class Stationary {
 	static public Paint getCurrentPaint() { return getPaint(_stationary); }
 	static public void setCurrentStationary(int stationary) { _stationary = stationary; }
 	
-	static public Paint getPaint(int stationary) {
+	static Paint getPaint(int stationary) {
 		if(_paints.get(stationary) != null)
 			return _paints.get(stationary);
 		Paint paint = new Paint();

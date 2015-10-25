@@ -23,9 +23,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class GotoDialog extends Dialog implements OnClickListener {
+class GotoDialog extends Dialog implements OnClickListener {
 
-	public GotoDialog(PageActivity activity) {
+	GotoDialog(PageActivity activity) {
 		super(activity);
 		_activity = activity;
 		setContentView(R.layout.d_goto);
@@ -36,7 +36,7 @@ public class GotoDialog extends Dialog implements OnClickListener {
 		maxPage.setText(String.valueOf(PDFMaster.instance().countPages()));
 	}
 	
-	public void setPage(int pageNumber) {
+	void setPage(int pageNumber) {
 		_pageNumber.setText(String.valueOf(pageNumber));
 	}
 

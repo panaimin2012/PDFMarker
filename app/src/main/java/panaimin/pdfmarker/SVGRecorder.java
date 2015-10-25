@@ -33,11 +33,11 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.Xml;
 
-public class SVGRecorder {
+class SVGRecorder {
 	
 	// static
 	
-	public static final String		TAG = "PDFMarker.SVGRecorder";
+	static final String		TAG = "PDFMarker.SVGRecorder";
 	
 	private static int				_width;
 	private static int				_height;
@@ -104,7 +104,7 @@ public class SVGRecorder {
 		}
 	}
 	
-	public void addPath(SVGPath newPath) {
+	void addPath(SVGPath newPath) {
 		boolean modified = false;
 		if(newPath.getPen() == Stationary.ERASER * Stationary.M + Stationary.E_SUPER) {
 			// super eraser: erase all intersect paths
@@ -127,7 +127,7 @@ public class SVGRecorder {
 			saveSVG();
 	}
 	
-	public void saveSVG() {
+	void saveSVG() {
 		String svgFile = PDFMarkerApp.instance().getFilesDir().getPath() + "/" + _fileId + "." + _pageId + ".svg";
 		XmlSerializer xml = Xml.newSerializer();
 		OutputStream out;
@@ -161,7 +161,7 @@ public class SVGRecorder {
 	private int						_pageId = -100;
 	private ArrayList<SVGPath>		_paths;
 
-	public class SVGPath extends Path {
+	class SVGPath extends Path {
 
 		public SVGPath(int pen) {
 			super();

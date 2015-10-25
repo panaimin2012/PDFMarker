@@ -37,11 +37,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 
-public class StationaryDialog extends Dialog  implements OnTabChangeListener {
+class StationaryDialog extends Dialog  implements OnTabChangeListener, View.OnClickListener {
 	
-	private static String TAG = "STATIONARY";
+	static String TAG = "PDFMarker.StationaryDialog";
 
-	public StationaryDialog(Activity activity, MenuItem menuItem) {
+	StationaryDialog(Activity activity, MenuItem menuItem) {
 		super(activity);
 		_menuItem = menuItem;
 		setTitle("Stationary");
@@ -99,6 +99,7 @@ public class StationaryDialog extends Dialog  implements OnTabChangeListener {
 		_colorPencilsAdapter.add(new Item(Stationary.COLOR_PENCIL, 0xffff00, R.drawable.ic_colorpencil_ffff00, R.drawable.ic_cp_ffff00, ""));
 		_colorPencils.setAdapter(_colorPencilsAdapter);
 		_colorPencils.setOnItemClickListener(_colorPencilsAdapter);
+		findViewById(R.id.btn_ok).setOnClickListener(this);
 	}
 
 	@Override
@@ -115,8 +116,13 @@ public class StationaryDialog extends Dialog  implements OnTabChangeListener {
 		_menuItem.setIcon(_lastItem._menuResourceId);
 		Stationary.setCurrentStationary(stationary);
 	}
+
+	@Override
+	public void onClick(View view) {
+		dismiss();
+	}
 	
-	public void display() {
+	void display() {
 		_menuItem.setIcon(_lastItem._menuResourceId);
 		show();
 	}
