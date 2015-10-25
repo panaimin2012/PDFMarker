@@ -85,6 +85,10 @@ public class SVGView extends View {
 		setDynamicMatrix(_dynamicMatrix);
 	}
 
+	private Bitmap _bgBmp = null;
+	private Canvas _bgCanvas = null;
+	private BitmapDrawable _bgDrawable = null;
+
 	void setDynamicMatrix(Matrix matrix) {
 		_dynamicMatrix = matrix;
 		_dynamicMatrixValues = null;
@@ -93,12 +97,16 @@ public class SVGView extends View {
 		Matrix _displayMatrix = new Matrix(_fixedMatrix);
 		if(_dynamicMatrix != null)
 			_displayMatrix.postConcat(_dynamicMatrix);
-		Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-		Bitmap bmp = Bitmap.createBitmap(_width, _height, conf); // this creates a MUTABLE bitmap
-		Canvas canvas = new Canvas(bmp);
-		canvas.drawBitmap(_pdf, _displayMatrix, null);
-		BitmapDrawable bg = new BitmapDrawable(getResources(), bmp);
-		setBackground(bg);
+		if (_bgBmp == null) {
+			Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+			_bgBmp = Bitmap.createBitmap(_width, _height, conf); // this creates a MUTABLE bitmap
+			_bgCanvas = new Canvas(_bgBmp);
+		}
+		_bgCanvas.drawBitmap(_pdf, _displayMatrix, null);
+		if (_bgDrawable == null) {
+			_bgDrawable = new BitmapDrawable(getResources(), _bgBmp);
+			setBackground(_bgDrawable);
+		}
 		postInvalidate();
 	}
 
