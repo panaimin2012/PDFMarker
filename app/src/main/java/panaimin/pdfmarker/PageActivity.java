@@ -98,6 +98,8 @@ public class PageActivity extends Activity {
 		}
 		else if(id == R.id.action_cut) {
 			_pageTurner._current.cutEdge();
+			_pageTurner._next.refresh();
+			_pageTurner._previous.refresh();
 			return true;
 		}
 		else if(id == R.id.action_about) {
