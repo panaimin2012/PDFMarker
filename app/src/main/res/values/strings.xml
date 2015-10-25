@@ -26,5 +26,8 @@
 	<string name="max_page">Max</string>
 	<string name="go">Go</string>
 	<string name="delete_marks">Do you want to delete all marks on this PDF file?</string>
-	
+    <string name="license">License</string>
+    <string name="license_hide">Don\'t show this dialog again</string>
+    <string name="license_ok">OK</string>
+
 </resources>

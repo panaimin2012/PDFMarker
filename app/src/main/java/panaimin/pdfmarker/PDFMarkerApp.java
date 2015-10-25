@@ -7,6 +7,8 @@ public class PDFMarkerApp extends Application {
 
 	private static PDFMarkerApp		_instance;
 
+	static final String PREF_SHOW_LICENSE = "SHOW_LICENSE";
+
 	@Override
 	public void onCreate() {
 		super.onCreate();

@@ -21,7 +21,9 @@ import android.widget.SimpleCursorAdapter;
 public class RecentlyUsedActivity extends ListActivity implements OnItemLongClickListener {
 	
 	public static String TAG = "RECENT";
-	
+
+	private CursorAdapter	_adapter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,24 +34,19 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 		_adapter = new SimpleCursorAdapter(this, R.layout.r_file, cursor, cols, ids, 0);
 		setListAdapter(_adapter);
 		getListView().setOnItemLongClickListener(this);
-		_stopped = false;
-	}
-	
-	@Override
-	public void onStop() {
-		super.onStop();
-		_stopped = true;
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		if(_stopped) {
-			Cursor cursor = DB.instance().getFiles();
-			_adapter.changeCursor(cursor);
-			_adapter.notifyDataSetChanged();
-			_stopped = false;
+		// show license dialog for the first time
+		if (Utility.instance().getPref(PDFMarkerApp.PREF_SHOW_LICENSE, true)) {
+			LicenseDialog dlg = new LicenseDialog(this);
+			dlg.show();
 		}
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		Cursor cursor = DB.instance().getFiles();
+		_adapter.changeCursor(cursor);
+		_adapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -83,13 +80,17 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			startActivity(i);
 			return true;
 		}
+		else if (id == R.id.action_license) {
+			LicenseDialog dlg = new LicenseDialog(this);
+			dlg.show();
+		}
 		return super.onOptionsItemSelected(item);
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		openPDF((int)id);
+		openPDF((int) id);
 	}
 	
 	@Override
@@ -103,9 +104,6 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			openPDF(fileId);
 		}
 	}
-	
-	private CursorAdapter	_adapter;
-	private boolean			_stopped = false;
 	
 	private void openPDF(int fileId) {
 		Cursor cursor = DB.instance().getFileInfo(fileId);
