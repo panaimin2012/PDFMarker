@@ -18,14 +18,21 @@ package panaimin.pdfmarker;
  */
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,8 +63,69 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			LicenseDialog dlg = new LicenseDialog(this);
 			dlg.show();
 		}
+		Intent intent = getIntent();
+		String action = intent.getAction();
+		if (action.compareTo(Intent.ACTION_VIEW) == 0) {
+			String fileName;
+			String filePath;
+			String scheme = intent.getScheme();
+			ContentResolver resolver = getContentResolver();
+			if (scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0 ||
+					scheme.compareTo("http") == 0) {
+				Uri uri = intent.getData();
+				fileName = getContentName(resolver, uri);
+				try {
+					InputStream input = resolver.openInputStream(uri);
+					filePath = PDFMarkerApp.instance().getFilesDir() + "/" + fileName;
+					InputStreamToFile(input, filePath);
+					// save the file to database first
+					int fileId = DB.instance().insert(fileName, filePath);
+					// open the file
+					openPDF(fileId);
+				}
+				catch(Exception e) {
+					LogDog.e(TAG, "Failed to view because " + e.getMessage());
+				}
+			} else if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0) {
+				Uri uri = intent.getData();
+				fileName = uri.getLastPathSegment();
+				try {
+					InputStream input = resolver.openInputStream(uri);
+					filePath = PDFMarkerApp.instance().getFilesDir() + "/" + fileName;
+					InputStreamToFile(input, filePath);
+					// save the file to database first
+					int fileId = DB.instance().insert(fileName, filePath);
+					// open the file
+					openPDF(fileId);
+				}
+				catch (Exception e) {
+					LogDog.e(TAG, "Failed to view because " + e.getMessage());
+				}
+			}
+		}
 	}
-	
+
+	private String getContentName(ContentResolver resolver, Uri uri){
+		Cursor cursor = resolver.query(uri, null, null, null, null);
+		cursor.moveToFirst();
+		int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+		String ret = null;
+		if (nameIndex >= 0)
+			ret = cursor.getString(nameIndex);
+		cursor.close();
+		return ret;
+	}
+
+	private void InputStreamToFile(InputStream in, String file) throws IOException {
+		OutputStream out = new FileOutputStream(new File(file));
+		int size = 0;
+		byte[] buffer = new byte[1024];
+		while ((size = in.read(buffer)) != -1) {
+			out.write(buffer, 0, size);
+		}
+		out.close();
+	}
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -121,7 +189,7 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			openPDF(fileId);
 		}
 	}
-	
+
 	private void openPDF(int fileId) {
 		Cursor cursor = DB.instance().getFileInfo(fileId);
 		if(cursor.getCount() > 0) {
