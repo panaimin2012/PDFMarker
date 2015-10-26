@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
@@ -54,8 +55,8 @@ public class PageTurner extends FrameLayout {
 	private static int[]		_leftMost2Orient = null;
 	private static float[]		_leftMost2Angle = null;
 	// the leftMost point is from -_width to +_width, so use 2 array (try not to use map)
-	private int[]				_leftMost2Orient_minus = null;
-	private float[]				_leftMost2Angle_minus = null;
+	private static int[]		_leftMost2Orient_minus = null;
+	private static float[]		_leftMost2Angle_minus = null;
 
 	private PageActivity		_activity;
 	SVGView						_current;
@@ -66,7 +67,7 @@ public class PageTurner extends FrameLayout {
 	private GradientDrawable 	_leftShadow;
 	private GradientDrawable	_rightShadow;
 	private GradientDrawable	_leftBack;
-	private Scroller			_scroller;
+	private Scroller			_scroller = null;
 	private int					_width;
 	private int					_height;
 	private float				_radius;
@@ -84,6 +85,7 @@ public class PageTurner extends FrameLayout {
 
 	void initView() {
 		_activity = (PageActivity)getContext();
+		_scroller = new Scroller(_activity, new AccelerateInterpolator());
 		int fileId = _activity._fileId;
 		_pageId = PDFMaster.instance().currentPage();
 		// current
@@ -109,7 +111,6 @@ public class PageTurner extends FrameLayout {
 		_rightShadow.setGradientType(GradientDrawable.LINEAR_GRADIENT);
 		_leftBack = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, BACK1_COLORS);
 		_leftBack.setGradientType(GradientDrawable.LINEAR_GRADIENT);
-		_scroller = new Scroller(_activity);
 	}
 
 	@Override
@@ -129,9 +130,11 @@ public class PageTurner extends FrameLayout {
 		int lastLeftMost = _width - 1;
 		_leftMost2Orient[lastLeftMost] = _width - 1;
 		_leftMost2Angle[lastLeftMost] = 0;
-		for(int orient = _width - 1; orient >= 0; --orient) {
+		int orient;
+		float angle = 0;
+		for(orient = _width - 1; orient >= 0; --orient) {
 			int s = _width - orient;
-			float angle = (float)s / _radius;
+			angle = (float)s / _radius;
 			float degree = (float)(angle * 180 / Math.PI);
 			int leftMost =
 				degree > 360 ? (int)(Math.PI * 2 * _radius  + orient * 2 - _radius * 2 - _width) :
@@ -147,9 +150,14 @@ public class PageTurner extends FrameLayout {
 					_leftMost2Angle[lastLeftMost] = angle;
 				}
 			}
-			_leftMost2Orient_minus[0] = _leftMost2Orient[0];
-			_leftMost2Angle_minus[0] = _leftMost2Angle[0];
 		}
+		while (lastLeftMost > 1 - _width) {
+			lastLeftMost --;
+			_leftMost2Orient_minus[-lastLeftMost] = orient;
+			_leftMost2Angle_minus[-lastLeftMost] = angle;
+		}
+		_leftMost2Orient_minus[0] = _leftMost2Orient[0];
+		_leftMost2Angle_minus[0] = _leftMost2Angle[0];
 	}
 
 	// setLeftMost is called when manually turning to next page
