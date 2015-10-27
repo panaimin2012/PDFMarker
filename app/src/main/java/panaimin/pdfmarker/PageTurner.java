@@ -27,7 +27,7 @@ import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
@@ -85,7 +85,7 @@ public class PageTurner extends FrameLayout {
 
 	void initView() {
 		_activity = (PageActivity)getContext();
-		_scroller = new Scroller(_activity, new AccelerateInterpolator());
+		_scroller = new Scroller(_activity, new LinearInterpolator());
 		int fileId = _activity._fileId;
 		_pageId = PDFMaster.instance().currentPage();
 		// current
