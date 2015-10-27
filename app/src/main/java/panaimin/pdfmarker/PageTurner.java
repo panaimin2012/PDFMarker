@@ -35,11 +35,12 @@ public class PageTurner extends FrameLayout {
 
 	static final String TAG = "PDFMarker.Turner";
 
-	private static final int	TURNING_NONE = 0;
-	private static final int	TURNING_NEXT_MANUAL = 1;
-	private static final int	TURNING_NEXT_AUTO = 2;
-	private static final int	TURNING_PREV_MANUAL = -1;
-	private static final int	TURNING_PREV_AUTO = -2;
+	static final int	TURNING_NONE = 0;
+	static final int	TURNING_NEXT_MANUAL = 1;
+	static final int	TURNING_NEXT_AUTO = 2;
+	static final int	TURNING_PREV_MANUAL = -1;
+	static final int	TURNING_PREV_AUTO = -2;
+
 	private static final int	EDGE_WIDTH = 50;
 	private static final int	LEFT_SHADOW_DARK = 0xff404040;
 	private static final int[]	LEFT_SHADOW_COLORS = new int[] { 0, LEFT_SHADOW_DARK };
@@ -293,6 +294,21 @@ public class PageTurner extends FrameLayout {
 			}
 			_turning = TURNING_NONE;
 			turnToPage(newPage);
+		}
+	}
+
+	void turnPage(int direction) {
+		if (direction == TURNING_PREV_AUTO) {
+			_previous.setVisibility(VISIBLE);
+			_turning = TURNING_PREV_AUTO;
+			_scroller.startScroll(1, 0, _width - 2, 0, (int)SCROLL_TIME);
+			postInvalidate();
+		}
+		else if (direction == TURNING_NEXT_AUTO) {
+			_next.setVisibility(VISIBLE);
+			_turning = TURNING_NEXT_AUTO;
+			_scroller.startScroll(_width - 1, 0, 2 - _width - _width, 0, (int)SCROLL_TIME);
+			postInvalidate();
 		}
 	}
 

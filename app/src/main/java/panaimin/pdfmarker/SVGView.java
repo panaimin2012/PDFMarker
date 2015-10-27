@@ -31,6 +31,7 @@ import android.view.View;
 public class SVGView extends View {
 
 	static final String TAG = "PDFMarker.SVGView";
+	static final int FLING_WIDTH = 150;
 
 	private int					_width = 0;
 	private int					_height = 0;
@@ -139,7 +140,7 @@ public class SVGView extends View {
 			canvas.restore();
 	}
 
-	private boolean _showGoto = false;
+	private float _flingStartX = -1;
 
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
@@ -203,18 +204,24 @@ public class SVGView extends View {
 						break;
 					}
 				}
-				_showGoto = false;
+				_flingStartX = -1;
 			}
 			else if (action == MotionEvent.ACTION_DOWN) {
-				_showGoto = true;
+				_flingStartX = event.getX();
 			}
 			else if (action == MotionEvent.ACTION_UP) {
-				if (_showGoto) {
-					GotoDialog dlg = new GotoDialog(_activity);
-					dlg.setPage(PDFMaster.instance().currentPage() + 1);
-					dlg.show();
+				if (_flingStartX > 0) {
+					if (event.getX() - _flingStartX > FLING_WIDTH)
+						_activity._pageTurner.turnPage(PageTurner.TURNING_PREV_AUTO);
+					else if (_flingStartX - event.getX() > FLING_WIDTH)
+						_activity._pageTurner.turnPage(PageTurner.TURNING_NEXT_AUTO);
+					else {
+						GotoDialog dlg = new GotoDialog(_activity);
+						dlg.setPage(PDFMaster.instance().currentPage() + 1);
+						dlg.show();
+					}
 				}
-				_showGoto = false;
+				_flingStartX = -1;
 			}
 		}
 		invalidate();
