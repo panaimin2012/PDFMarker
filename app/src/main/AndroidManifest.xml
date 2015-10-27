@@ -26,14 +26,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="*" />
-                <data android:mimeType="application/pdf" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:scheme="ftp" />
                 <data android:scheme="file" />
                 <data android:host="*" />
+                <data android:mimeType="application/pdf" />
                 <data android:pathPattern=".*\\.pdf" />
             </intent-filter>
         </activity>

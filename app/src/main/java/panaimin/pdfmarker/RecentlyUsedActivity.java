@@ -65,7 +65,7 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 		}
 		Intent intent = getIntent();
 		String action = intent.getAction();
-		if (action.compareTo(Intent.ACTION_VIEW) == 0) {
+		if (action.equals(Intent.ACTION_VIEW) || action.equals(Intent.ACTION_OPEN_DOCUMENT)) {
 			String fileName;
 			String filePath;
 			String scheme = intent.getScheme();
