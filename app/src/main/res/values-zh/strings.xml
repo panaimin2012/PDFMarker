@@ -25,5 +25,8 @@
 	<string name="max_page">最大</string>
 	<string name="go">跳转</string>
 	<string name="delete_marks">您是否想同时删除此文件相关的所有标注?</string>
-		
+    <string name="msg_wrong_page">页数错误</string>
+    <string name="license">授权</string>
+    <string name="license_hide">不再显示此对话框</string>
+    <string name="license_ok">知道了</string>
 </resources>
