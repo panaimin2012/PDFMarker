@@ -38,6 +38,8 @@ public class DocActivity extends Activity {
 			url += doc;
 			if(Utility.instance().isChinese())
 				url += ".zh";
+			else if (Utility.instance().isJapanese())
+				url += ".ja";
 			url += ".html";
 			webView.loadUrl(url);
 			setTitle(doc);
