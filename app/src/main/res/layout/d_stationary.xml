@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <Button
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/license_ok"
         android:id="@+id/btn_ok"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="false"
+        android:layout_alignParentEnd="false"
+        android:src="@drawable/select"
         android:layout_centerHorizontal="true"/>
 
     <TabHost

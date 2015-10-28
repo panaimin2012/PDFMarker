@@ -70,8 +70,9 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			String filePath;
 			String scheme = intent.getScheme();
 			ContentResolver resolver = getContentResolver();
-			if (scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0 ||
-					scheme.compareTo("http") == 0) {
+			if (scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0
+					|| scheme.compareTo("http") == 0
+					|| scheme.compareTo("https") == 0) {
 				Uri uri = intent.getData();
 				fileName = getContentName(resolver, uri);
 				try {
@@ -89,18 +90,8 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			} else if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0) {
 				Uri uri = intent.getData();
 				fileName = uri.getLastPathSegment();
-				try {
-					InputStream input = resolver.openInputStream(uri);
-					filePath = PDFMarkerApp.instance().getFilesDir() + "/" + fileName;
-					InputStreamToFile(input, filePath);
-					// save the file to database first
-					int fileId = DB.instance().insert(fileName, filePath);
-					// open the file
-					openPDF(fileId);
-				}
-				catch (Exception e) {
-					LogDog.e(TAG, "Failed to view because " + e.getMessage());
-				}
+				int fileId = DB.instance().insert(fileName, uri.getPath());
+				openPDF(fileId);
 			}
 		}
 	}
