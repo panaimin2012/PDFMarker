@@ -46,7 +46,7 @@ public class PageTurner extends FrameLayout {
 	private static final int[]	LEFT_SHADOW_COLORS = new int[] { 0, LEFT_SHADOW_DARK };
 	private static final int[]	RIGHT_SHADOW_COLORS = new int[] { 0xff000000, 0};
 	private static final int[]	BACK1_COLORS = new int[] { 0xffd0d0d0, 0xff404040 };
-	private static final float	SCROLL_TIME = 2000f;
+	private static final float	SCROLL_TIME = 1000f;
 
 	// I try to simulate pulling the page edge
 	// but unfortunately solving this equation is an advanced topic
@@ -259,14 +259,12 @@ public class PageTurner extends FrameLayout {
 
 	@Override
 	public void computeScroll() {
-		LogDog.i(TAG, "computeScroll");
 		super.computeScroll();
 		if (_turning != TURNING_NEXT_AUTO && _turning != TURNING_PREV_AUTO)
 			return;
 		if (_scroller.computeScrollOffset()) {
 			// scrolling
 			float x = _scroller.getCurrX();
-			LogDog.i(TAG, "computeScroll x=" + x);
 			if (_turning == TURNING_PREV_AUTO) {
 				setRightMost(x);
 			}
@@ -298,17 +296,34 @@ public class PageTurner extends FrameLayout {
 	}
 
 	void turnPage(int direction) {
+		boolean fast = Utility.instance().getPref(PDFMarkerApp.PREF_FAST_PAGE_TURN, false);
 		if (direction == TURNING_PREV_AUTO) {
-			_previous.setVisibility(VISIBLE);
-			_turning = TURNING_PREV_AUTO;
-			_scroller.startScroll(1, 0, _width - 2, 0, (int)SCROLL_TIME);
-			postInvalidate();
+			if (_pageId > 0) {
+				if (fast)
+					turnToPage(_pageId - 1);
+				else {
+					_previous.setVisibility(VISIBLE);
+					_turning = TURNING_PREV_AUTO;
+					_scroller.startScroll(1, 0, _width - 2, 0, (int) SCROLL_TIME);
+					postInvalidate();
+				}
+			}
+			else
+				Utility.instance().showToast(R.string.msg_firstpage);
 		}
 		else if (direction == TURNING_NEXT_AUTO) {
-			_next.setVisibility(VISIBLE);
-			_turning = TURNING_NEXT_AUTO;
-			_scroller.startScroll(_width - 1, 0, 2 - _width - _width, 0, (int)SCROLL_TIME);
-			postInvalidate();
+			if (_pageId < PDFMaster.instance().countPages() - 1) {
+				if (fast)
+					turnToPage(_pageId + 1);
+				else {
+					_next.setVisibility(VISIBLE);
+					_turning = TURNING_NEXT_AUTO;
+					_scroller.startScroll(_width - 1, 0, 2 - _width - _width, 0, (int) SCROLL_TIME);
+					postInvalidate();
+				}
+			}
+			else
+				Utility.instance().showToast(R.string.msg_lastpage);
 		}
 	}
 

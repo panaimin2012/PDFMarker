@@ -115,7 +115,7 @@ class PDFMaster {
 		LogDog.i(TAG, "getFixedMatrix " + width + "," + height);
 		// calculate scale matrix which fit the PDF to screen
 		boolean scaleChanged = false;
-		boolean keepRatio = PreferenceManager.getDefaultSharedPreferences(PDFMarkerApp.instance()).getBoolean("KEEP_RATIO", false);
+		boolean keepRatio = Utility.instance().getPref(PDFMarkerApp.PREF_KEEP_RATIO, false);
 		if(_scaleMatrix == null || _width != width || _height != height || _keepRatio != keepRatio) {
 			LogDog.i(TAG, "getFixedMatrix scaleChanged");
 			Bitmap bmp = getCachedBitmap(PAGE_CURRENT);
