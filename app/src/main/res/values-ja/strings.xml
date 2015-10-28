@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PDFマーカー</string>
+    <string name="action_settings">設定</string>
+    <string name="action_about">PDFマーカーについて</string>
+    <string name="action_file">ファイル</string>
+    <string name="action_manual">マニュアル</string>
+    <string name="action_stationary">文房具</string>
+    <string name="action_mode">モード</string>
+    <string name="action_cut">カット</string>
+    <string name="title_activity_file_selector">PDFファイルを選ぶ</string>
+    <string name="title_activity_page">PDFマーカー</string>
+    <string name="title_activity_settings">設定</string>
+    <string name="title_activity_doc">ついて</string>
+    <string name="fast_turn">快速ページ開く</string>
+    <string name="fast_turn_summary">ページ開く動画を省略する</string>
+    <string name="keep_ratio">幅、高さ比例を保つ</string>
+    <string name="keep_ratio_summary">ページのオリジナル幅、高さ比例を保つ</string>
+    <string name="recently">最近使ったファイル</string>
+    <string name="msg_cut">ページをカットしました</string>
+    <string name="msg_firstpage">既に最初のページです</string>
+    <string name="msg_lastpage">既に最後のページです</string>
+    <string name="msg_wrong_page">ページ番号エラー</string>
+	<string name="goto_page">開くページ番号:</string>
+	<string name="max_page">最後のページ</string>
+	<string name="go">開く</string>
+	<string name="delete_marks">このPDFファイルに付いてるマークを削除しますか？</string>
+    <string name="license">ライセンス</string>
+    <string name="license_hide">このダイアログを表示しないように</string>
+    <string name="license_ok">分かりました</string>
+
+</resources>
