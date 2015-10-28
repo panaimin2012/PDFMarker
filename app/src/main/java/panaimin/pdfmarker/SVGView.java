@@ -32,6 +32,7 @@ public class SVGView extends View {
 
 	static final String TAG = "PDFMarker.SVGView";
 	static final int FLING_WIDTH = 150;
+	static final int BG_COLOR = 0xFFF0F0F0;
 
 	private int					_width = 0;
 	private int					_height = 0;
@@ -103,6 +104,7 @@ public class SVGView extends View {
 			_bgBmp = Bitmap.createBitmap(_width, _height, conf); // this creates a MUTABLE bitmap
 			_bgCanvas = new Canvas(_bgBmp);
 		}
+		_bgCanvas.drawColor(BG_COLOR);
 		_bgCanvas.drawBitmap(_pdf, _displayMatrix, null);
 		if (_bgDrawable == null) {
 			_bgDrawable = new BitmapDrawable(getResources(), _bgBmp);
@@ -211,10 +213,12 @@ public class SVGView extends View {
 			}
 			else if (action == MotionEvent.ACTION_UP) {
 				if (_flingStartX > 0) {
-					if (event.getX() - _flingStartX > FLING_WIDTH)
+					if (event.getX() - _flingStartX > FLING_WIDTH) {
 						_activity._pageTurner.turnPage(PageTurner.TURNING_PREV_AUTO);
-					else if (_flingStartX - event.getX() > FLING_WIDTH)
+					}
+					else if (_flingStartX - event.getX() > FLING_WIDTH) {
 						_activity._pageTurner.turnPage(PageTurner.TURNING_NEXT_AUTO);
+					}
 					else {
 						GotoDialog dlg = new GotoDialog(_activity);
 						dlg.setPage(PDFMaster.instance().currentPage() + 1);
