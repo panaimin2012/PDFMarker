@@ -45,7 +45,6 @@ public class PageActivity extends Activity implements View.OnClickListener {
 	FrameLayout			_container = null;
 	Handler				_handler = new Handler();
 	Runnable			_cutHider;
-	Runnable			_modeHider;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +69,6 @@ public class PageActivity extends Activity implements View.OnClickListener {
 				_cut.setVisibility(View.INVISIBLE);
 			}
 		};
-		_modeHider = new Runnable() {
-			@Override
-			public void run() {
-				_mode.setVisibility(View.INVISIBLE);
-			}
-		};
 		// try to show the passed in page
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -98,7 +91,6 @@ public class PageActivity extends Activity implements View.OnClickListener {
 		if (Utility.instance().getPref(PDFMarkerApp.PREF_FULL_SCREEN, true)) {
 			_mode.setVisibility(View.VISIBLE);
 			_container.bringChildToFront(_mode);
-			_handler.postDelayed(_modeHider, HIDE_DELAY);
 		}
 	}
 
@@ -118,9 +110,10 @@ public class PageActivity extends Activity implements View.OnClickListener {
 				}
 				_stationaryDialog.display();
 			}
-			else
+			else {
+				_mode.setVisibility(View.INVISIBLE);
 				_mode.setImageResource(R.drawable.ic_hand);
-			_mode.setVisibility(View.INVISIBLE);
+			}
 		}
 	}
 
