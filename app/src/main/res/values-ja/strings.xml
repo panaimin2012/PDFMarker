@@ -17,6 +17,10 @@
     <string name="fast_turn_summary">ページ開く動画を省略する</string>
     <string name="keep_ratio">幅、高さ比例を保つ</string>
     <string name="keep_ratio_summary">ページのオリジナル幅、高さ比例を保つ</string>
+    <string name="hardware_acceleration">ハードウェア加速</string>
+    <string name="hardware_acceleration_summary">ハードウェアでページズーム、ターンをよりスムーズに。ページ表示が問題有れば使わないで。</string>
+    <string name="full_screen">フールスクリーン</string>
+    <string name="full_screen_summary">フールスクリーンで読む</string>
     <string name="recently">最近使ったファイル</string>
     <string name="msg_cut">ページをカットしました</string>
     <string name="msg_firstpage">既に最初のページです</string>

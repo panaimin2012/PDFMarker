@@ -27,6 +27,8 @@ public class PDFMarkerApp extends Application {
 	static final String PREF_SHOW_LICENSE = "SHOW_LICENSE";
 	static final String PREF_FAST_PAGE_TURN = "FAST_PAGE_TURN";
 	static final String PREF_KEEP_RATIO = "KEEP_RATIO";
+	static final String PREF_HARDWARE_ACCELERATION = "HARDWARE_ACCELERATION";
+	static final String PREF_FULL_SCREEN = "FULL_SCREEN";
 
 	@Override
 	public void onCreate() {

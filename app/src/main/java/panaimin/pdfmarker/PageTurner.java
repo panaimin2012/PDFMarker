@@ -85,6 +85,8 @@ public class PageTurner extends FrameLayout {
 	}
 
 	void initView() {
+		if (!Utility.instance().getPref(PDFMarkerApp.PREF_HARDWARE_ACCELERATION, false))
+			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		_activity = (PageActivity)getContext();
 		_scroller = new Scroller(_activity, new LinearInterpolator());
 		int fileId = _activity._fileId;

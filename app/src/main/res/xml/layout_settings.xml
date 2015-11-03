@@ -12,4 +12,16 @@
         android:summary="@string/keep_ratio_summary"
         android:title="@string/keep_ratio" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="HARDWARE_ACCELERATION"
+        android:summary="@string/hardware_acceleration_summary"
+        android:title="@string/hardware_acceleration" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="FULL_SCREEN"
+        android:summary="@string/full_screen_summary"
+        android:title="@string/full_screen" />
+
 </PreferenceScreen>

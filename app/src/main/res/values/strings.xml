@@ -17,6 +17,11 @@
     <string name="fast_turn_summary">Skip page turn animation</string>
     <string name="keep_ratio">Keep raw width/height ratio</string>
     <string name="keep_ratio_summary">Keep width/height ratio of the original page</string>
+    <string name="hardware_acceleration">Hardware acceleration</string>
+    <string name="hardware_acceleration_summary">Smooth page zoom/drag/turn with hardware acceleration.
+        Turn this off if you see problems with drawing.</string>
+    <string name="full_screen">Full screen</string>
+    <string name="full_screen_summary">Read pdf files in full extend of screen</string>
     <string name="recently">Recently Used Files</string>
     <string name="msg_cut">Page edge cut</string>
     <string name="msg_firstpage">Already at the first page</string>

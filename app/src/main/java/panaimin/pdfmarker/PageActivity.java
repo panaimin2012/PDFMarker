@@ -23,6 +23,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class PageActivity extends Activity {
 	
@@ -36,6 +38,11 @@ public class PageActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (Utility.instance().getPref(PDFMarkerApp.PREF_FULL_SCREEN, true)) {
+			requestWindowFeature(Window.FEATURE_NO_TITLE);
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
 		setContentView(R.layout.a_page);
 		// try to show the passed in page
 		Bundle extras = getIntent().getExtras();
