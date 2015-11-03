@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -41,9 +42,19 @@ class StationaryDialog extends Dialog  implements OnTabChangeListener, View.OnCl
 	
 	static String TAG = "PDFMarker.StationaryDialog";
 
+	StationaryDialog(Activity activity, ImageButton ib) {
+		super(activity);
+		_modeButton = ib;
+		initDialog();
+	}
+
 	StationaryDialog(Activity activity, MenuItem menuItem) {
 		super(activity);
-		_menuItem = menuItem;
+		_modeMenu = menuItem;
+		initDialog();
+	}
+
+	void initDialog() {
 		setTitle("Stationary");
 		setContentView(R.layout.d_stationary);
 		Resources r = PDFMarkerApp.instance().getResources();
@@ -113,7 +124,10 @@ class StationaryDialog extends Dialog  implements OnTabChangeListener, View.OnCl
 		_lastItem = (Item)adapter.getItem(position);
 		int stationary = _lastItem.getId();
 		adapter.notifyDataSetChanged();
-		_menuItem.setIcon(_lastItem._menuResourceId);
+		if (_modeMenu != null)
+			_modeMenu.setIcon(_lastItem._menuResourceId);
+		else if (_modeButton != null)
+			_modeButton.setImageResource(_lastItem._menuResourceId);
 		Stationary.setCurrentStationary(stationary);
 	}
 
@@ -123,11 +137,15 @@ class StationaryDialog extends Dialog  implements OnTabChangeListener, View.OnCl
 	}
 	
 	void display() {
-		_menuItem.setIcon(_lastItem._menuResourceId);
+		if (_modeMenu != null)
+			_modeMenu.setIcon(_lastItem._menuResourceId);
+		else if (_modeButton != null)
+			_modeButton.setImageResource(_lastItem._menuResourceId);
 		show();
 	}
 
-	private MenuItem						_menuItem;
+	private MenuItem						_modeMenu = null;
+	private ImageButton						_modeButton = null;
 	private ListView						_pencils;
 	private StationaryAdapter				_pencilsAdapter;
 	private ListView						_erasers;
@@ -205,7 +223,10 @@ class StationaryDialog extends Dialog  implements OnTabChangeListener, View.OnCl
 				_lastItem = _items.get(pos);
 				int stationary = _lastItem.getId();
 				Stationary.setCurrentStationary(stationary);
-				_menuItem.setIcon(_lastItem._menuResourceId);
+				if (_modeMenu != null)
+					_modeMenu.setIcon(_lastItem._menuResourceId);
+				else if (_modeButton != null)
+					_modeButton.setImageResource(_lastItem._menuResourceId);
 				notifyDataSetChanged();
 			}
 		}

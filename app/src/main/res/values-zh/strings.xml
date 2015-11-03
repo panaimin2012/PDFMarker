@@ -33,4 +33,6 @@
     <string name="license">授权</string>
     <string name="license_hide">不再显示此对话框</string>
     <string name="license_ok">知道了</string>
+    <string name="show_mode">触碰屏幕顶部显示模式按钮</string>
+
 </resources>

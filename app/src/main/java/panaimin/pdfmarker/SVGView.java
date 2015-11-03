@@ -143,6 +143,7 @@ public class SVGView extends View {
 	}
 
 	private float _flingStartX = -1;
+	private float _flingStartY = -1;
 
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
@@ -150,6 +151,7 @@ public class SVGView extends View {
 		if (_activity._markMode) {
 			switch(action) {
 			case MotionEvent.ACTION_DOWN :
+				_activity.showMode();
 				_currentPath = _svgRecorder.new SVGPath(Stationary.getCurrentStationary());
 				_currentPath.addPoint(getUnscaledX(event.getX()), getUnscaledY(event.getY()));
 				break;
@@ -200,6 +202,7 @@ public class SVGView extends View {
 						}
 						break;
 					case MotionEvent.ACTION_UP :
+						_activity.showCut();
 						// fall through
 					case MotionEvent.ACTION_POINTER_DOWN :
 						_moving = false;
@@ -207,9 +210,11 @@ public class SVGView extends View {
 					}
 				}
 				_flingStartX = -1;
+				_flingStartY = -1;
 			}
 			else if (action == MotionEvent.ACTION_DOWN) {
 				_flingStartX = event.getX();
+				_flingStartY = event.getY();
 			}
 			else if (action == MotionEvent.ACTION_UP) {
 				if (_flingStartX > 0) {
@@ -219,6 +224,8 @@ public class SVGView extends View {
 					else if (_flingStartX - event.getX() > FLING_WIDTH) {
 						_activity._pageTurner.turnPage(PageTurner.TURNING_NEXT_AUTO);
 					}
+					else if (_flingStartY < FLING_WIDTH)
+						_activity.showMode();
 					else {
 						GotoDialog dlg = new GotoDialog(_activity);
 						dlg.setPage(PDFMaster.instance().currentPage() + 1);
@@ -226,6 +233,7 @@ public class SVGView extends View {
 					}
 				}
 				_flingStartX = -1;
+				_flingStartY = -1;
 			}
 		}
 		invalidate();

@@ -21,19 +21,31 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
-public class PageActivity extends Activity {
+public class PageActivity extends Activity implements View.OnClickListener {
 	
 	public static String TAG = "PDFMarker.Activity";
+
+	static final long HIDE_DELAY = 3000;
 	
 	boolean				_markMode = false;
 	StationaryDialog	_stationaryDialog = null;
 	int					_fileId;
 	PageTurner			_pageTurner;
+	ImageButton			_cut = null;
+	ImageButton			_mode = null;
+	FrameLayout			_container = null;
+	Handler				_handler = new Handler();
+	Runnable			_cutHider;
+	Runnable			_modeHider;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +54,28 @@ public class PageActivity extends Activity {
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			Utility.instance().showToast(R.string.show_mode);
 		}
 		setContentView(R.layout.a_page);
+		_container = (FrameLayout)findViewById(R.id.container);
+		_cut = (ImageButton)findViewById(R.id.ib_cut);
+		_mode = (ImageButton)findViewById(R.id.ib_mode);
+		_cut.setVisibility(View.INVISIBLE);
+		_mode.setVisibility(View.INVISIBLE);
+		_cut.setOnClickListener(this);
+		_mode.setOnClickListener(this);
+		_cutHider = new Runnable() {
+			@Override
+			public void run() {
+				_cut.setVisibility(View.INVISIBLE);
+			}
+		};
+		_modeHider = new Runnable() {
+			@Override
+			public void run() {
+				_mode.setVisibility(View.INVISIBLE);
+			}
+		};
 		// try to show the passed in page
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -53,7 +85,45 @@ public class PageActivity extends Activity {
 		// reset the stationary when opening a page
 		Stationary.setCurrentStationary(Stationary.PENCIL * Stationary.M + Stationary.P_HB);
 	}
-	
+
+	void showCut() {
+		if (Utility.instance().getPref(PDFMarkerApp.PREF_FULL_SCREEN, true)) {
+			_cut.setVisibility(View.VISIBLE);
+			_container.bringChildToFront(_cut);
+			_handler.postDelayed(_cutHider, HIDE_DELAY);
+		}
+	}
+
+	void showMode() {
+		if (Utility.instance().getPref(PDFMarkerApp.PREF_FULL_SCREEN, true)) {
+			_mode.setVisibility(View.VISIBLE);
+			_container.bringChildToFront(_mode);
+			_handler.postDelayed(_modeHider, HIDE_DELAY);
+		}
+	}
+
+	@Override
+	public void onClick(View view) {
+		if (view == _cut) {
+			_pageTurner._current.cutEdge();
+			_pageTurner._next.refresh();
+			_pageTurner._previous.refresh();
+			_cut.setVisibility(View.INVISIBLE);
+		} else if (view == _mode) {
+			_markMode = !_markMode;
+			if(_markMode) {
+				if(_stationaryDialog == null) {
+					_stationaryDialog = new StationaryDialog(this, _mode);
+					_stationaryDialog.setOwnerActivity(this);
+				}
+				_stationaryDialog.display();
+			}
+			else
+				_mode.setImageResource(R.drawable.ic_hand);
+			_mode.setVisibility(View.INVISIBLE);
+		}
+	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();
