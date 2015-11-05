@@ -92,7 +92,7 @@ public class FileSelector extends ListActivity implements View.OnClickListener {
 			for (File f : files)
 				_adapter.add(new FileSysObject(f, false, false));
 		}
-		File[] directories = _cd.listFiles(new FileFilter() {
+		File[] directories = directory.listFiles(new FileFilter() {
 			public boolean accept(File file) {
 				return file.isDirectory();
 			}
