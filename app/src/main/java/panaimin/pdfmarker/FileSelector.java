@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,8 +48,6 @@ public class FileSelector extends ListActivity implements View.OnClickListener {
 		_cd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 		_adapter = new FileSysAdapter();
 		setListAdapter(_adapter);
-		_handler = new Handler();
-		_updater = new FileSysUpdater();
 		_handler.post(_updater);
 		findViewById(R.id.ib_search).setOnClickListener(this);
 	}
@@ -105,22 +104,25 @@ public class FileSelector extends ListActivity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		_adapter.clear();
-		File parent = _cd.getParentFile();
-		if (parent != null)
-			_adapter.add(new FileSysObject(parent, true, true));
-		searchDirectory(_cd);
-		_adapter.notifyDataSetChanged();
+		_progressDialog = ProgressDialog.show(this, "Load", "Loading", true);
+		new Thread(new Runnable() {
+			@Override
+			public void run()
+			{
+				_adapter.clear();
+				File parent = _cd.getParentFile();
+				if (parent != null)
+					_adapter.add(new FileSysObject(parent, true, true));
+				searchDirectory(_cd);
+				_handler.post(_uiUpdator);
+			}
+		}).start();
 	}
 	
 	private TextView		_path;
 	private File			_cd = null;
-	private Handler			_handler;
-	private FileSysUpdater	_updater = null;
-	private FileSysAdapter	_adapter = null;
-	
-	// Runnable class that updates the file/directory list
-	private class FileSysUpdater implements Runnable {
+	private Handler			_handler = new Handler();
+	private Runnable		_updater = new Runnable() {
 		@Override
 		public void run() {
 			_path.setText(_cd.getAbsolutePath());
@@ -161,7 +163,19 @@ public class FileSelector extends ListActivity implements View.OnClickListener {
 				_adapter.add(new FileSysObject(f, false, false));
 			_adapter.notifyDataSetChanged();
 		}
-	}
+	};
+	private FileSysAdapter	_adapter = null;
+	private ProgressDialog	_progressDialog;
+	private Runnable		_uiUpdator = new Runnable() {
+		@Override
+		public void run() {
+			_adapter.notifyDataSetChanged();
+			if (_progressDialog != null) {
+				_progressDialog.dismiss();
+				_progressDialog = null;
+			}
+		}
+	};
 	
 	// FileSysObject
 	private class FileSysObject {
