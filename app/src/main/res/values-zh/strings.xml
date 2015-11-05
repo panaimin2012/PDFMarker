@@ -19,7 +19,7 @@
     <string name="keep_ratio_summary">保留PDF文件的纵横比例</string>
     <string name="hardware_acceleration">硬件加速</string>
     <string name="hardware_acceleration_summary">用硬件加速使页面放大/拖曳/翻页更加平滑。如果您看到页面表示不正常，请不要使用此项。</string>
-    <string name="full_screen">全屏阅读</string>
+    <string name="full_screen">以全屏方式打开</string>
     <string name="full_screen_summary">阅读文件时使用全屏幕</string>
     <string name="recently">最近使用过的文件</string>
     <string name="msg_cut">页面已经裁剪</string>
@@ -35,5 +35,7 @@
     <string name="license_ok">知道了</string>
     <string name="show_mode">触碰屏幕顶部显示模式按钮</string>
     <string name="search_all">搜索当前目录下全部PDF文件</string>
+    <string name="search">搜索</string>
+    <string name="searching">搜索中</string>
 
 </resources>

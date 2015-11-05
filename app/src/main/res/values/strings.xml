@@ -20,7 +20,7 @@
     <string name="hardware_acceleration">Hardware acceleration</string>
     <string name="hardware_acceleration_summary">Smooth page zoom/drag/turn with hardware acceleration.
         Turn this off if you see problems with drawing.</string>
-    <string name="full_screen">Full screen</string>
+    <string name="full_screen">Open with full screen</string>
     <string name="full_screen_summary">Read pdf files in full extend of screen</string>
     <string name="recently">Recently Used Files</string>
     <string name="msg_cut">Page edge cut</string>
@@ -36,5 +36,7 @@
     <string name="license_ok">OK</string>
     <string name="show_mode">Touch top of the screen to show mode button</string>
     <string name="search_all">Search all PDF files under current directory</string>
+    <string name="search">Search</string>
+    <string name="searching">Searching</string>
 
 </resources>

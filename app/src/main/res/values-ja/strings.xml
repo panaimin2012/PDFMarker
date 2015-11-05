@@ -19,7 +19,7 @@
     <string name="keep_ratio_summary">ページのオリジナル幅、高さ比例を保つ</string>
     <string name="hardware_acceleration">ハードウェア加速</string>
     <string name="hardware_acceleration_summary">ハードウェアでページズーム、ターンをよりスムーズに。ページ表示が問題有れば使わないで。</string>
-    <string name="full_screen">フールスクリーン</string>
+    <string name="full_screen">フールスクリーンで開く</string>
     <string name="full_screen_summary">フールスクリーンで読む</string>
     <string name="recently">最近使ったファイル</string>
     <string name="msg_cut">ページをカットしました</string>
@@ -35,5 +35,7 @@
     <string name="license_ok">分かりました</string>
     <string name="show_mode">スクリーン上部を触れるとモードボタンが表示されます</string>
     <string name="search_all">只今のダイレクトリの下の全てのPDFファイルを検索</string>
+    <string name="search">検索</string>
+    <string name="searching">検索中</string>
 
 </resources>

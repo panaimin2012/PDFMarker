@@ -49,7 +49,11 @@ public class PageActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (Utility.instance().getPref(PDFMarkerApp.PREF_FULL_SCREEN, true)) {
+		Bundle extras = getIntent().getExtras();
+		boolean fullScreen = true;
+		if (extras != null && !extras.getBoolean("FULL_SCREEN"))
+			fullScreen = false;
+		if (fullScreen) {
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -70,7 +74,6 @@ public class PageActivity extends Activity implements View.OnClickListener {
 			}
 		};
 		// try to show the passed in page
-		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			_fileId = extras.getInt("FILE_ID");
 		}

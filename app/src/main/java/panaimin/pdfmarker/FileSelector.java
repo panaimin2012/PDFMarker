@@ -104,7 +104,9 @@ public class FileSelector extends ListActivity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		_progressDialog = ProgressDialog.show(this, "Load", "Loading", true);
+		String search = getResources().getString(R.string.search);
+		String searching = getResources().getString(R.string.searching);
+		_progressDialog = ProgressDialog.show(this, search, searching, true);
 		new Thread(new Runnable() {
 			@Override
 			public void run()

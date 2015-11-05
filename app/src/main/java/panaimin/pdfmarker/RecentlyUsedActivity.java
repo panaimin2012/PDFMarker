@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -47,11 +48,14 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 	static String TAG = "PDFMarker.Recent";
 
 	private CursorAdapter	_adapter;
+	private CheckBox		_cb_fullscreen;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.a_main);
+		_cb_fullscreen = (CheckBox)findViewById(R.id.cb_fullscreen);
+		_cb_fullscreen.setChecked(Utility.instance().getPref(PDFMarkerApp.PREF_FULL_SCREEN, true));
 		Cursor cursor = DB.instance().getFiles();
 		String[] cols = new String[] { DB.FILES._FILE, DB.FILES._PATH };
 		int[] ids = new int[] { R.id.fileName, R.id.directory };
@@ -187,6 +191,7 @@ public class RecentlyUsedActivity extends ListActivity implements OnItemLongClic
 			DB.instance().onFileOpen(fileId);
 			Intent intent = new Intent(this, PageActivity.class);
 			intent.putExtra("FILE_ID", fileId);
+			intent.putExtra("FULL_SCREEN", _cb_fullscreen.isChecked());
 			startActivity(intent);
 		}
 	}

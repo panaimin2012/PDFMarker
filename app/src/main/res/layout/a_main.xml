@@ -14,13 +14,22 @@
         android:layout_height="wrap_content"
         android:text="@string/recently" />
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/full_screen"
+        android:id="@+id/cb_fullscreen"
+        android:layout_alignParentBottom="true"
+        android:checked="true"/>
+
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/cd"
         android:layout_below="@+id/cd"
-        android:layout_marginTop="10dp" >
+        android:layout_marginTop="10dp"
+        android:layout_above="@+id/cb_fullscreen">
 
     </ListView>
 
