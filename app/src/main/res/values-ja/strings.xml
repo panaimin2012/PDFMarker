@@ -34,5 +34,6 @@
     <string name="license_hide">このダイアログを表示しないように</string>
     <string name="license_ok">分かりました</string>
     <string name="show_mode">スクリーン上部を触れるとモードボタンが表示されます</string>
+    <string name="search_all">只今のダイレクトリの下の全てのPDFファイルを検索</string>
 
 </resources>

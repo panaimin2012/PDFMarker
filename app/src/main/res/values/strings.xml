@@ -35,5 +35,6 @@
     <string name="license_hide">Don\'t show this dialog again</string>
     <string name="license_ok">OK</string>
     <string name="show_mode">Touch top of the screen to show mode button</string>
+    <string name="search_all">Search all PDF files under current directory</string>
 
 </resources>

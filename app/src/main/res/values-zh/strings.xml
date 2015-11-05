@@ -34,5 +34,6 @@
     <string name="license_hide">不再显示此对话框</string>
     <string name="license_ok">知道了</string>
     <string name="show_mode">触碰屏幕顶部显示模式按钮</string>
+    <string name="search_all">搜索当前目录下全部PDF文件</string>
 
 </resources>

@@ -30,8 +30,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -39,7 +37,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FileSelector extends ListActivity {
+public class FileSelector extends ListActivity implements View.OnClickListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +50,7 @@ public class FileSelector extends ListActivity {
 		_handler = new Handler();
 		_updater = new FileSysUpdater();
 		_handler.post(_updater);
+		findViewById(R.id.ib_search).setOnClickListener(this);
 	}
 	
 	@Override
@@ -80,26 +79,42 @@ public class FileSelector extends ListActivity {
 		finish();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.file_selector, menu);
-		return true;
+	private void searchDirectory(File directory) {
+		File[] files = directory.listFiles(new FileFilter() {
+			public boolean accept(File file) {
+				if (file.isDirectory())
+					return false;
+				String fname = file.getName().toLowerCase();
+				return fname.endsWith(".pdf");
+			}
+		});
+		if (files != null) {
+			for (File f : files)
+				_adapter.add(new FileSysObject(f, false, false));
+		}
+		File[] directories = _cd.listFiles(new FileFilter() {
+			public boolean accept(File file) {
+				return file.isDirectory();
+			}
+		});
+		if (directories != null) {
+			for (File d : directories)
+				searchDirectory(d);
+		}
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+	public void onClick(View v) {
+		_adapter.clear();
+		File parent = _cd.getParentFile();
+		if (parent != null)
+			_adapter.add(new FileSysObject(parent, true, true));
+		searchDirectory(_cd);
+		_adapter.notifyDataSetChanged();
 	}
 	
 	private TextView		_path;
 	private File			_cd = null;
-	private File			_parent;
-	private File[]			_directories;
-	private File[]			_files;
 	private Handler			_handler;
 	private FileSysUpdater	_updater = null;
 	private FileSysAdapter	_adapter = null;
@@ -109,15 +124,15 @@ public class FileSelector extends ListActivity {
 		@Override
 		public void run() {
 			_path.setText(_cd.getAbsolutePath());
-			_parent = _cd.getParentFile();
-			_directories = _cd.listFiles(new FileFilter() {
+			File parent = _cd.getParentFile();
+			File[] directories = _cd.listFiles(new FileFilter() {
 				public boolean accept(File file) {
 					return file.isDirectory();
 				}
 			});
-			if (_directories == null)
-				_directories = new File[0];
-			_files = _cd.listFiles(new FileFilter() {
+			if (directories == null)
+				directories = new File[0];
+			File[] files = _cd.listFiles(new FileFilter() {
 				public boolean accept(File file) {
 					if (file.isDirectory())
 						return false;
@@ -125,24 +140,24 @@ public class FileSelector extends ListActivity {
 					return fname.endsWith(".pdf");
 				}
 			});
-			if (_files == null)
-				_files = new File[0];
-			Arrays.sort(_files, new Comparator<File>() {
+			if (files == null)
+				files = new File[0];
+			Arrays.sort(files, new Comparator<File>() {
 				public int compare(File arg0, File arg1) {
 					return arg0.getName().compareToIgnoreCase(arg1.getName());
 				}
 			});
-			Arrays.sort(_directories, new Comparator<File>() {
+			Arrays.sort(directories, new Comparator<File>() {
 				public int compare(File arg0, File arg1) {
 					return arg0.getName().compareToIgnoreCase(arg1.getName());
 				}
 			});
 			_adapter.clear();
-			if (_parent != null)
-				_adapter.add(new FileSysObject(_parent, true, true));
-			for (File f : _directories)
+			if (parent != null)
+				_adapter.add(new FileSysObject(parent, true, true));
+			for (File f : directories)
 				_adapter.add(new FileSysObject(f, true, false));
-			for (File f : _files)
+			for (File f : files)
 				_adapter.add(new FileSysObject(f, false, false));
 			_adapter.notifyDataSetChanged();
 		}
@@ -163,7 +178,7 @@ public class FileSelector extends ListActivity {
 	// Adapter class to show file system in the list
 	private class FileSysAdapter extends BaseAdapter {
 		
-		private ArrayList<FileSysObject>	_objects = new ArrayList<FileSysObject>();
+		private ArrayList<FileSysObject>	_objects = new ArrayList<>();
 		
 		public void clear() {
 			_objects.clear();
